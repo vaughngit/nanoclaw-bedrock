@@ -32,11 +32,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Invalid config produces an actionable error message naming the exact field, expected value, and what was found
   3. App starts and runs in container mode with identical behavior when config file is absent
   4. Config exposes an `executionMode` field accepting `"container"` or `"host"`, defaulting to `"container"` when unspecified
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
+- [ ] 01-01-PLAN.md -- Core config loader: strip-json-comments dep, JSONC parsing, Zod validation, boxed error banners, singleton export
+- [ ] 01-02-PLAN.md -- Startup integration: wire config-loader into index.ts, verify backward compatibility
 
 ### Phase 2: Config Template and Env Expansion
 **Goal**: Users have a rich, self-documenting config file they can copy and customize, with environment variable interpolation for secrets and paths
