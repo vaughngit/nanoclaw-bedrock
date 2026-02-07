@@ -104,6 +104,52 @@ function printConfigError(title: string, details: string[]): void {
 }
 
 /**
+ * Regex for ${VAR} and ${VAR:-default} patterns.
+ * Matches valid POSIX env var names: letters, digits, underscores, not starting with digit.
+ * The :- delimiter and default value are optional.
+ */
+const ENV_VAR_PATTERN = /\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?}/g;
+
+/**
+ * Track env var references that had no value and no default.
+ * Reset at the start of each loadAndValidateConfig() call.
+ */
+let unresolvedVars: string[] = [];
+
+/**
+ * Recursively expand environment variable references in all string values
+ * within a parsed JSON structure.
+ *
+ * - ${VAR} expands to the value of env var VAR, or empty string if unset
+ * - ${VAR:-default} expands to VAR if set and non-empty, else "default"
+ * - Non-string values (numbers, booleans, null) pass through unchanged
+ * - Object keys are NOT expanded (only values)
+ */
+function expandEnvVars(value: unknown): unknown {
+  if (typeof value === 'string') {
+    return value.replace(ENV_VAR_PATTERN, (_match, name: string, fallback?: string) => {
+      const envVal = process.env[name];
+      // ${VAR:-default}: use default when var is unset OR empty (bash convention)
+      if (envVal !== undefined && envVal !== '') return envVal;
+      if (fallback !== undefined) return fallback;
+      unresolvedVars.push(name);
+      return '';
+    });
+  }
+  if (Array.isArray(value)) {
+    return value.map(expandEnvVars);
+  }
+  if (value !== null && typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      result[k] = expandEnvVars(v);
+    }
+    return result;
+  }
+  return value;
+}
+
+/**
  * Load and validate nanoclaw.config.jsonc from the project root.
  * Returns a frozen, typed config object.
  *
@@ -111,6 +157,7 @@ function printConfigError(title: string, details: string[]): void {
  * If the config file is invalid, prints a boxed error banner and exits.
  */
 function loadAndValidateConfig(): NanoClawConfig {
+  unresolvedVars = [];
   const configPath = path.join(process.cwd(), CONFIG_FILENAME);
 
   // Case 1: No config file -- use all defaults
@@ -152,6 +199,16 @@ function loadAndValidateConfig(): NanoClawConfig {
       'Hint: Check for missing commas, unclosed braces, or invalid syntax',
     ]);
     process.exit(1);
+  }
+
+  // Expand env vars in all string values
+  data = expandEnvVars(data);
+
+  // Warn about unresolved env vars before validation
+  if (unresolvedVars.length > 0) {
+    process.stderr.write(
+      `[config] Warning: unresolved env vars: ${unresolvedVars.join(', ')}\n`,
+    );
   }
 
   // Validate with Zod (collects all errors by default)

@@ -1,0 +1,130 @@
+{
+  // ═══════════════════════════════════════════════════════════════════
+  //  NanoClaw Configuration
+  // ═══════════════════════════════════════════════════════════════════
+  //
+  //  This file configures how NanoClaw runs your Claude agents.
+  //  It uses JSONC format: JSON with comments and trailing commas.
+  //
+  //  SECRETS: API keys and tokens belong in .env, NOT here.
+  //  This file can be committed to git safely.
+  //
+  //  ENV VARS: Use ${VAR} or ${VAR:-default} in any string value.
+  //  Example: "${HOME}/projects" expands to "/Users/you/projects"
+  //
+  //  EDITING: Uncomment sections as you enable features.
+  //  Fields not in the current schema are rejected (catches typos).
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ─── Execution Mode ───────────────────────────────────────────────
+  //
+  // How agents execute. This is the most important setting.
+  //
+  //   "container" (default)
+  //     Agents run in isolated Linux VMs via Apple Container.
+  //     + Safe: agents can only see mounted directories
+  //     + Bash commands run inside the container, not on your Mac
+  //     - Cannot access host dev tools, MCP servers, or native apps
+  //
+  //   "host"
+  //     Agents run directly on macOS as subprocesses.
+  //     + Full access to dev tools (git, kubectl, docker, etc.)
+  //     + Can use host MCP servers and native apps
+  //     + Inherits global MCP servers from ~/.claude/settings.json
+  //     - Agent has real macOS access -- requires trust
+  //     - Sandbox settings (below) provide safety boundaries
+  //
+  "executionMode": "container",
+
+  // ─── MCP Servers ──────────────────────────────────────────────────
+  //
+  // Model Context Protocol servers extend agent capabilities.
+  // Configured here so NanoClaw can filter by execution mode.
+  //
+  // Each server needs:
+  //   - A unique name (the key)
+  //   - Connection config (command+args for stdio, or url for http/sse)
+  //   - Optional "modes" array to restrict to specific execution modes
+  //
+  // If "modes" is omitted, the server is available in both modes.
+  //
+  // Environment variables in args and env are expanded at startup:
+  //   "${GITHUB_TOKEN}" -> value of GITHUB_TOKEN from .env
+  //   "${HOME}/projects" -> /Users/you/projects
+  //   "${API_KEY:-sk-placeholder}" -> API_KEY value or "sk-placeholder"
+  //
+  // UNCOMMENT when ready (requires Phase 6):
+  //
+  // "mcpServers": {
+  //
+  //   // ── stdio server (local process) ──
+  //   "github": {
+  //     "command": "npx",
+  //     "args": ["-y", "@modelcontextprotocol/server-github"],
+  //     "env": {
+  //       "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+  //     },
+  //     "modes": ["host"]
+  //   },
+  //
+  //   // ── stdio server with path expansion ──
+  //   "filesystem": {
+  //     "command": "npx",
+  //     "args": ["-y", "@modelcontextprotocol/server-filesystem", "${HOME}/projects"],
+  //     "modes": ["host", "container"]
+  //   },
+  //
+  //   // ── HTTP/SSE remote server ──
+  //   "remote-api": {
+  //     "type": "sse",
+  //     "url": "https://api.example.com/mcp/sse",
+  //     "headers": {
+  //       "Authorization": "Bearer ${API_TOKEN}"
+  //     },
+  //     "modes": ["host"]
+  //   }
+  //
+  // },
+
+  // ─── Host Mode Security ───────────────────────────────────────────
+  //
+  // When executionMode is "host", these settings control what agents
+  // can do. Container mode ignores these (containers have their own
+  // isolation).
+  //
+  // UNCOMMENT when ready (requires Phase 5):
+  //
+  // "hostSecurity": {
+  //
+  //   // ── Sandbox ──
+  //   // macOS Seatbelt sandbox restricts file and network access.
+  //   // The Claude Agent SDK's sandbox option controls this.
+  //   //
+  //   //   true (default) - Agent runs in sandbox, limited file access
+  //   //   false          - No sandbox, full macOS access (dangerous!)
+  //   //
+  //   "sandbox": true,
+  //
+  //   // ── Allowed Tools ──
+  //   // Which tools the agent can use in host mode.
+  //   // Default: full Claude Code tool set.
+  //   // Restrict to limit agent capabilities.
+  //   //
+  //   // "allowedTools": [
+  //   //   "Bash", "Read", "Write", "Edit", "Glob", "Grep",
+  //   //   "WebSearch", "WebFetch",
+  //   //   "mcp__nanoclaw__*"
+  //   // ]
+  //
+  // },
+
+  // ─── Per-Group Overrides ──────────────────────────────────────────
+  //
+  // Individual groups can override the global executionMode.
+  // Configured in the database (registered_groups), not here.
+  // Groups without an override inherit the global setting above.
+  //
+  // See Phase 8 for details. No config fields needed here --
+  // per-group overrides use the existing group registration system.
+
+}
