@@ -127,4 +127,21 @@
   // See Phase 8 for details. No config fields needed here --
   // per-group overrides use the existing group registration system.
 
+  // ─── Path Environment Variables (Host Mode) ────────────────────
+  //
+  // When executionMode is "host", the host runner sets these env vars
+  // on each agent-runner subprocess. You do NOT set these manually.
+  //
+  // These are documented here for reference and troubleshooting:
+  //
+  //   NANOCLAW_GROUP_DIR   - Agent working directory (per-group files)
+  //   NANOCLAW_GLOBAL_DIR  - Shared global memory directory
+  //   NANOCLAW_IPC_DIR     - IPC file exchange directory
+  //   NANOCLAW_MODE        - "container" or "host" (affects settings sources)
+  //   CLAUDE_CONFIG_DIR    - Claude session storage (SDK variable)
+  //
+  // In container mode, these are unset and defaults apply (/workspace/*).
+  // In host mode, the runner resolves them to absolute macOS paths.
+  // If a path doesn't exist, the agent-runner creates it automatically.
+
 }
