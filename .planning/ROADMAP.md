@@ -61,11 +61,10 @@ Plans:
   2. Container mode continues to work identically after the refactor (existing tests pass, same container image behavior)
   3. IPC MCP tool uses the configurable IPC directory instead of hardcoded `/workspace/ipc`
   4. Container image rebuilds successfully with the refactored agent-runner
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md -- Path-configurable agent-runner: resolvePathVar() helper, env-var-backed path constants, IPC injection, mode-driven settingSources, config docs, container rebuild
 
 ### Phase 4: Runner Abstraction and Host Runner
 **Goal**: Users running in host mode get agents spawned directly on macOS as Node.js subprocesses, using the same IPC protocol and queue integration as container mode
@@ -153,7 +152,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Config Loader | 2/2 | ✓ Complete | 2026-02-07 |
 | 2. Config Template and Env Expansion | 1/1 | ✓ Complete | 2026-02-07 |
-| 3. Agent-Runner Path Flexibility | 0/2 | Not started | - |
+| 3. Agent-Runner Path Flexibility | 0/1 | Not started | - |
 | 4. Runner Abstraction and Host Runner | 0/2 | Not started | - |
 | 5. Host Mode Security | 0/3 | Not started | - |
 | 6. MCP Server Configuration and Filtering | 0/2 | Not started | - |
