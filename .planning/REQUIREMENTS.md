@@ -9,15 +9,15 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Configuration System
 
-- [ ] **CFG-01**: App reads `nanoclaw.config.jsonc` from project root, parsing JSONC (JSON with Comments)
-- [ ] **CFG-02**: Config validation runs at startup with actionable error messages pointing to exact problems (field name, expected value, what was found)
-- [ ] **CFG-03**: App runs in container mode with current behavior when config file is absent (zero behavioral change for existing users)
+- [x] **CFG-01**: App reads `nanoclaw.config.jsonc` from project root, parsing JSONC (JSON with Comments)
+- [x] **CFG-02**: Config validation runs at startup with actionable error messages pointing to exact problems (field name, expected value, what was found)
+- [x] **CFG-03**: App runs in container mode with current behavior when config file is absent (zero behavioral change for existing users)
 - [ ] **CFG-04**: Config file ships as a self-documenting template with extensive inline comments explaining every field, every mode, and every trade-off
 - [ ] **CFG-05**: Config values support `${VAR}` and `${VAR:-default}` environment variable expansion, especially for MCP server args and paths
 
 ### Execution Mode
 
-- [ ] **EXEC-01**: Config has an `executionMode` field accepting `"container"` or `"host"`, defaulting to `"container"`
+- [x] **EXEC-01**: Config has an `executionMode` field accepting `"container"` or `"host"`, defaulting to `"container"`
 - [ ] **EXEC-02**: Startup prints a clear, unmistakable banner/warning when running in host mode, stating the agent has full macOS access
 - [ ] **EXEC-03**: Host runner spawns `claude` (agent-runner) directly on macOS as a subprocess instead of inside a container
 - [ ] **EXEC-04**: Host runner reuses the existing agent-runner code with path-configurable env vars (not a separate implementation)
@@ -74,12 +74,12 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CFG-01 | Phase 1 | Pending |
-| CFG-02 | Phase 1 | Pending |
-| CFG-03 | Phase 1 | Pending |
+| CFG-01 | Phase 1 | Complete |
+| CFG-02 | Phase 1 | Complete |
+| CFG-03 | Phase 1 | Complete |
 | CFG-04 | Phase 2 | Pending |
 | CFG-05 | Phase 2 | Pending |
-| EXEC-01 | Phase 1 | Pending |
+| EXEC-01 | Phase 1 | Complete |
 | EXEC-02 | Phase 8 | Pending |
 | EXEC-03 | Phase 4 | Pending |
 | EXEC-04 | Phase 3 | Pending |

@@ -12,7 +12,7 @@ This roadmap delivers configurable execution mode switching for NanoClaw via a J
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Config Loader** - Parse JSONC config, validate with Zod, merge defaults, export typed config
+- [x] **Phase 1: Config Loader** - Parse JSONC config, validate with Zod, merge defaults, export typed config
 - [ ] **Phase 2: Config Template and Env Expansion** - Ship self-documenting config file with environment variable support
 - [ ] **Phase 3: Agent-Runner Path Flexibility** - Make agent-runner path-configurable via env vars for dual-mode reuse
 - [ ] **Phase 4: Runner Abstraction and Host Runner** - Spawn agents directly on macOS as subprocesses using shared runner interface
@@ -35,8 +35,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Core config loader: strip-json-comments dep, JSONC parsing, Zod validation, boxed error banners, singleton export
-- [ ] 01-02-PLAN.md -- Startup integration: wire config-loader into index.ts, verify backward compatibility
+- [x] 01-01-PLAN.md -- Core config loader: strip-json-comments dep, JSONC parsing, Zod validation, boxed error banners, singleton export
+- [x] 01-02-PLAN.md -- Startup integration: wire config-loader into index.ts, verify backward compatibility
 
 ### Phase 2: Config Template and Env Expansion
 **Goal**: Users have a rich, self-documenting config file they can copy and customize, with environment variable interpolation for secrets and paths
@@ -151,7 +151,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Config Loader | 0/2 | Not started | - |
+| 1. Config Loader | 2/2 | ✓ Complete | 2026-02-07 |
 | 2. Config Template and Env Expansion | 0/1 | Not started | - |
 | 3. Agent-Runner Path Flexibility | 0/2 | Not started | - |
 | 4. Runner Abstraction and Host Runner | 0/2 | Not started | - |
