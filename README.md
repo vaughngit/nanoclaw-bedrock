@@ -15,8 +15,10 @@ NanoClaw gives you the same core functionality in a codebase you can understand 
 ## Quick Start
 
 ```bash
-git clone https://github.com/gavrielc/nanoclaw.git
-cd nanoclaw
+git clone https://github.com/vaughngit/nanoclaw-bedrock.git
+cd nanoclaw-bedrock
+cp .env.example .env
+# Edit .env with your auth credentials
 claude
 ```
 
@@ -46,7 +48,48 @@ Then run `/setup`. Claude Code handles everything: dependencies, authentication,
 - **Scheduled tasks** - Recurring jobs that run Claude and can message you back
 - **Web access** - Search and fetch content
 - **Container isolation** - Agents sandboxed in Apple Container (macOS) or Docker (macOS/Linux)
+- **Slack I/O** - Add Slack as an additional channel (Socket Mode, no public URL needed)
 - **Optional integrations** - Add Gmail (`/add-gmail`) and more via skills
+
+## Authentication
+
+NanoClaw supports two authentication methods. Set your choice in `.env`.
+
+### Option A: Anthropic API Key (Direct)
+
+Set `ANTHROPIC_API_KEY` in your `.env` file. This is the simplest option.
+
+### Option B: Amazon Bedrock
+
+Use your AWS account to access Claude via Bedrock. This avoids needing an Anthropic API key.
+
+1. **IAM permissions** — Your IAM user or role needs:
+   - `bedrock:InvokeModel`
+   - `bedrock:InvokeModelWithResponseStream`
+
+2. **Find model IDs** — List available inference profiles:
+   ```bash
+   aws bedrock list-inference-profiles --query 'inferenceProfileSummaries[?contains(modelArn, `anthropic`)].[inferenceProfileId,inferenceProfileName]' --output table
+   ```
+
+3. **Set env vars** in `.env`:
+   ```
+   CLAUDE_CODE_USE_BEDROCK=1
+   AWS_REGION=us-east-1
+   AWS_ACCESS_KEY_ID=...
+   AWS_SECRET_ACCESS_KEY=...
+   ANTHROPIC_MODEL=global.anthropic.claude-sonnet-4-5-20250929-v1:0
+   ```
+
+**Recommended models:**
+
+| Model | Inference Profile ID |
+|-------|---------------------|
+| Claude Opus 4.6 | `global.anthropic.claude-opus-4-6-20250624-v1:0` |
+| Claude Sonnet 4.5 | `global.anthropic.claude-sonnet-4-5-20250929-v1:0` |
+| Claude Haiku 3.5 | `global.anthropic.claude-3-5-haiku-20241022-v1:0` |
+
+See [Claude Code Bedrock documentation](https://docs.anthropic.com/en/docs/claude-code/bedrock) for more details.
 
 ## Usage
 
@@ -92,7 +135,6 @@ Skills we'd love to see:
 
 **Communication Channels**
 - `/add-telegram` - Add Telegram as channel. Should give the user option to replace WhatsApp or add as additional channel. Also should be possible to add it as a control channel (where it can trigger actions) or just a channel that can be used in actions triggered elsewhere
-- `/add-slack` - Add Slack
 - `/add-discord` - Add Discord
 
 **Platform Support**
@@ -105,13 +147,16 @@ Skills we'd love to see:
 
 - macOS or Linux
 - Node.js 20+
+- Anthropic API key **or** AWS account with Bedrock access
 - [Claude Code](https://claude.ai/download)
 - [Apple Container](https://github.com/apple/container) (macOS) or [Docker](https://docker.com/products/docker-desktop) (macOS/Linux)
 
 ## Architecture
 
 ```
-WhatsApp (baileys) --> SQLite --> Polling loop --> Container (Claude Agent SDK) --> Response
+WhatsApp (baileys) ──┐
+                     ├──> SQLite --> Polling loop --> Container (Claude Agent SDK) --> Response
+Slack (bolt)    ────┘
 ```
 
 Single Node.js process. Agents execute in isolated Linux containers with mounted directories. IPC via filesystem. No daemons, no queues, no complexity.
