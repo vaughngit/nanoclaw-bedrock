@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Config Loader** - Parse JSONC config, validate with Zod, merge defaults, export typed config
 - [x] **Phase 2: Config Template and Env Expansion** - Ship self-documenting config file with environment variable support
-- [ ] **Phase 3: Agent-Runner Path Flexibility** - Make agent-runner path-configurable via env vars for dual-mode reuse
+- [x] **Phase 3: Agent-Runner Path Flexibility** - Make agent-runner path-configurable via env vars for dual-mode reuse
 - [ ] **Phase 4: Runner Abstraction and Host Runner** - Spawn agents directly on macOS as subprocesses using shared runner interface
 - [ ] **Phase 5: Host Mode Security** - Enforce macOS Seatbelt sandbox, IPC authorization, and permission boundaries in host mode
 - [ ] **Phase 6: MCP Server Configuration and Filtering** - Mode-tagged MCP servers with intelligent filtering at agent startup
@@ -64,7 +64,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 03-01-PLAN.md -- Path-configurable agent-runner: resolvePathVar() helper, env-var-backed path constants, IPC injection, mode-driven settingSources, config docs, container rebuild
+- [x] 03-01-PLAN.md -- Path-configurable agent-runner: resolvePathVar() helper, env-var-backed path constants, IPC injection, mode-driven settingSources, config docs, container rebuild
 
 ### Phase 4: Runner Abstraction and Host Runner
 **Goal**: Users running in host mode get agents spawned directly on macOS as Node.js subprocesses, using the same IPC protocol and queue integration as container mode

@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 2 complete, ready for Phase 3
+**Current focus:** Phase 3 complete, ready for Phase 4
 
 ## Current Position
 
-Phase: 2 of 8 (Config Template and Env Expansion) -- COMPLETE
+Phase: 3 of 8 (Agent-Runner Path Flexibility) -- COMPLETE
 Plan: 1 of 1 in current phase
 Status: Phase complete
-Last activity: 2026-02-07 -- Completed 02-01-PLAN.md (config template and env expansion)
+Last activity: 2026-02-07 -- Completed 03-01-PLAN.md (agent-runner path flexibility)
 
-Progress: [███░░░░░░░░░░░░░] ~19%
+Progress: [████░░░░░░░░░░░░] ~27%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 5.3 min
-- Total execution time: 16 min
+- Total plans completed: 4
+- Average duration: 4.75 min
+- Total execution time: 19 min
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [███░░░░░░░░░░░░░] ~19%
 |-------|-------|-------|----------|
 | 01-config-loader | 2/2 | 13 min | 6.5 min |
 | 02-config-template-and-env-expansion | 1/1 | 3 min | 3 min |
+| 03-agent-runner-path-flexibility | 1/1 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (3 min), 01-02 (10 min), 02-01 (3 min)
-- Trend: 02-01 was fast -- straightforward implementation with no surprises
+- Last 5 plans: 01-01 (3 min), 01-02 (10 min), 02-01 (3 min), 03-01 (3 min)
+- Trend: Consistent 3 min for straightforward refactor/config plans
 
 *Updated after each plan completion*
 
@@ -56,6 +57,10 @@ Recent decisions affecting current work:
 - [02-01]: Empty env var treated as unset for :- syntax (bash convention)
 - [02-01]: Future config fields commented out in template to avoid z.strictObject() rejection
 - [02-01]: Expansion runs after JSON.parse, before Zod -- comments not expanded, expanded values validated
+- [03-01]: resolvePathVar() rejects relative paths with warning, falls back to default
+- [03-01]: IPC directory passed as parameter to createIpcMcp() -- single point of env var resolution in index.ts
+- [03-01]: Tool description made path-agnostic (references IPC directory generically, not /workspace/ literally)
+- [03-01]: Non-container mode logging of resolved paths for debugging visibility
 
 ### Pending Todos
 
@@ -66,9 +71,10 @@ None.
 - Phase 5 (Host Mode Security): sandbox-runtime integration needs deep research before implementation -- flagged by research summary as MEDIUM confidence area
 - Phase 7 (MCP Health Checks): Agent SDK mcpServerStatus() API existence unverified -- may need alternative approach
 - ESM pattern note: Any future module-level singletons that log at import time must use process.stderr.write, not pino logger (async transport timing issue)
+- Roadmap note: Success criteria references CLAUDE_HOME but correct env var is CLAUDE_CONFIG_DIR (SDK variable). Phase 4 will set CLAUDE_CONFIG_DIR, not CLAUDE_HOME.
 
 ## Session Continuity
 
-Last session: 2026-02-07T22:12:05Z
-Stopped at: Completed 02-01-PLAN.md, Phase 2 complete. Ready for Phase 3 (Container Runner)
+Last session: 2026-02-07T22:57:57Z
+Stopped at: Completed 03-01-PLAN.md, Phase 3 complete. Ready for Phase 4 (Runner Abstraction and Host Runner)
 Resume file: None
