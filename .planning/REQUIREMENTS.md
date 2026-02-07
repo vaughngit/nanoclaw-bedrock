@@ -20,8 +20,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **EXEC-01**: Config has an `executionMode` field accepting `"container"` or `"host"`, defaulting to `"container"`
 - [ ] **EXEC-02**: Startup prints a clear, unmistakable banner/warning when running in host mode, stating the agent has full macOS access
 - [ ] **EXEC-03**: Host runner spawns `claude` (agent-runner) directly on macOS as a subprocess instead of inside a container
-- [ ] **EXEC-04**: Host runner reuses the existing agent-runner code with path-configurable env vars (not a separate implementation)
-- [ ] **EXEC-05**: Container runner continues working unchanged when `executionMode` is `"container"`
+- [x] **EXEC-04**: Host runner reuses the existing agent-runner code with path-configurable env vars (not a separate implementation)
+- [x] **EXEC-05**: Container runner continues working unchanged when `executionMode` is `"container"`
 - [ ] **EXEC-06**: Config exposes macOS Seatbelt sandbox settings for host mode via the Agent SDK's `sandbox` option, with clear documentation on how to enable/disable/customize
 - [ ] **EXEC-07**: Sandbox settings are prominently documented in the config template so users can easily unlock or tighten restrictions
 
@@ -82,8 +82,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | EXEC-01 | Phase 1 | Complete |
 | EXEC-02 | Phase 8 | Pending |
 | EXEC-03 | Phase 4 | Pending |
-| EXEC-04 | Phase 3 | Pending |
-| EXEC-05 | Phase 3 | Pending |
+| EXEC-04 | Phase 3 | Complete |
+| EXEC-05 | Phase 3 | Complete |
 | EXEC-06 | Phase 5 | Pending |
 | EXEC-07 | Phase 5 | Pending |
 | MCP-01 | Phase 6 | Pending |
@@ -106,4 +106,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-07 after Phase 2 completion*
+*Last updated: 2026-02-07 after Phase 3 completion*
