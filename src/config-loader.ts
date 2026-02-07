@@ -2,7 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
 import { z } from 'zod';
-import { logger } from './logger.js';
+
+// NOTE: We intentionally do NOT use the pino logger here. This module runs
+// during ES module evaluation (top-level singleton), before pino's async
+// worker thread (pino-pretty transport) is ready to receive messages. Any
+// logger.info() calls at this stage are silently dropped. We use console.log
+// for info messages and console.error (via printConfigError) for errors,
+// ensuring config status always appears in startup output.
 
 const CONFIG_FILENAME = 'nanoclaw.config.jsonc';
 
@@ -109,7 +115,7 @@ function loadAndValidateConfig(): NanoClawConfig {
 
   // Case 1: No config file -- use all defaults
   if (!fs.existsSync(configPath)) {
-    logger.info(`No ${CONFIG_FILENAME} found, using defaults`);
+    process.stderr.write(`[config] No ${CONFIG_FILENAME} found, using defaults\n`);
     return Object.freeze(NanoClawConfigSchema.parse({}));
   }
 
@@ -157,7 +163,7 @@ function loadAndValidateConfig(): NanoClawConfig {
   }
 
   const config = Object.freeze(result.data);
-  logger.info(`Config loaded: executionMode=${config.executionMode}`);
+  process.stderr.write(`[config] Config loaded: executionMode=${config.executionMode}\n`);
   return config;
 }
 
