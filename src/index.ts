@@ -10,6 +10,7 @@ import makeWASocket, {
 } from '@whiskeysockets/baileys';
 import { CronExpressionParser } from 'cron-parser';
 
+import { config as nanoclawConfig } from './config-loader.js';
 import {
   ASSISTANT_NAME,
   DATA_DIR,
