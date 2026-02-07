@@ -74,36 +74,36 @@ Deferred to future release. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CFG-01 | - | Pending |
-| CFG-02 | - | Pending |
-| CFG-03 | - | Pending |
-| CFG-04 | - | Pending |
-| CFG-05 | - | Pending |
-| EXEC-01 | - | Pending |
-| EXEC-02 | - | Pending |
-| EXEC-03 | - | Pending |
-| EXEC-04 | - | Pending |
-| EXEC-05 | - | Pending |
-| EXEC-06 | - | Pending |
-| EXEC-07 | - | Pending |
-| MCP-01 | - | Pending |
-| MCP-02 | - | Pending |
-| MCP-03 | - | Pending |
-| MCP-04 | - | Pending |
-| MCP-05 | - | Pending |
-| MCP-06 | - | Pending |
-| GRP-01 | - | Pending |
-| GRP-02 | - | Pending |
-| GRP-03 | - | Pending |
-| SEC-01 | - | Pending |
-| SEC-02 | - | Pending |
-| SEC-03 | - | Pending |
+| CFG-01 | Phase 1 | Pending |
+| CFG-02 | Phase 1 | Pending |
+| CFG-03 | Phase 1 | Pending |
+| CFG-04 | Phase 2 | Pending |
+| CFG-05 | Phase 2 | Pending |
+| EXEC-01 | Phase 1 | Pending |
+| EXEC-02 | Phase 8 | Pending |
+| EXEC-03 | Phase 4 | Pending |
+| EXEC-04 | Phase 3 | Pending |
+| EXEC-05 | Phase 3 | Pending |
+| EXEC-06 | Phase 5 | Pending |
+| EXEC-07 | Phase 5 | Pending |
+| MCP-01 | Phase 6 | Pending |
+| MCP-02 | Phase 6 | Pending |
+| MCP-03 | Phase 6 | Pending |
+| MCP-04 | Phase 7 | Pending |
+| MCP-05 | Phase 6 | Pending |
+| MCP-06 | Phase 7 | Pending |
+| GRP-01 | Phase 8 | Pending |
+| GRP-02 | Phase 8 | Pending |
+| GRP-03 | Phase 8 | Pending |
+| SEC-01 | Phase 5 | Pending |
+| SEC-02 | Phase 5 | Pending |
+| SEC-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24
+- Mapped to phases: 24
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-07 after initial definition*
+*Last updated: 2026-02-07 after roadmap creation*
