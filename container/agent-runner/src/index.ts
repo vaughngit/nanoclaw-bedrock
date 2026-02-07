@@ -8,6 +8,32 @@ import path from 'path';
 import { query, HookCallback, PreCompactHookInput } from '@anthropic-ai/claude-agent-sdk';
 import { createIpcMcp } from './ipc-mcp.js';
 
+function log(message: string): void {
+  console.error(`[agent-runner] ${message}`);
+}
+
+function resolvePathVar(envVar: string, defaultPath: string): string {
+  const value = process.env[envVar];
+  if (!value) return defaultPath;
+  if (!path.isAbsolute(value)) {
+    log(`Warning: ${envVar}="${value}" is not absolute, using default: ${defaultPath}`);
+    return defaultPath;
+  }
+  return value;
+}
+
+const GROUP_DIR = resolvePathVar('NANOCLAW_GROUP_DIR', '/workspace/group');
+const GLOBAL_DIR = resolvePathVar('NANOCLAW_GLOBAL_DIR', '/workspace/global');
+const IPC_DIR = resolvePathVar('NANOCLAW_IPC_DIR', '/workspace/ipc');
+const NANOCLAW_MODE = process.env.NANOCLAW_MODE || 'container';
+
+if (NANOCLAW_MODE !== 'container') {
+  log(`Mode: ${NANOCLAW_MODE}`);
+  log(`Group dir: ${GROUP_DIR}`);
+  log(`Global dir: ${GLOBAL_DIR}`);
+  log(`IPC dir: ${IPC_DIR}`);
+}
+
 interface ContainerInput {
   prompt: string;
   sessionId?: string;
@@ -80,10 +106,6 @@ function writeOutput(output: ContainerOutput): void {
   console.log(OUTPUT_END_MARKER);
 }
 
-function log(message: string): void {
-  console.error(`[agent-runner] ${message}`);
-}
-
 function getSessionSummary(sessionId: string, transcriptPath: string): string | null {
   // sessions-index.json is in the same directory as the transcript
   const projectDir = path.dirname(transcriptPath);
@@ -133,7 +155,7 @@ function createPreCompactHook(): HookCallback {
       const summary = getSessionSummary(sessionId, transcriptPath);
       const name = summary ? sanitizeFilename(summary) : generateFallbackName();
 
-      const conversationsDir = '/workspace/group/conversations';
+      const conversationsDir = path.join(GROUP_DIR, 'conversations');
       fs.mkdirSync(conversationsDir, { recursive: true });
 
       const date = new Date().toISOString().split('T')[0];
@@ -245,7 +267,8 @@ async function main(): Promise<void> {
   const ipcMcp = createIpcMcp({
     chatJid: input.chatJid,
     groupFolder: input.groupFolder,
-    isMain: input.isMain
+    isMain: input.isMain,
+    ipcDir: IPC_DIR,
   });
 
   let result: AgentResponse | null = null;
@@ -258,11 +281,17 @@ async function main(): Promise<void> {
   }
 
   // Load global CLAUDE.md as additional system context (shared across all groups)
-  const globalClaudeMdPath = '/workspace/global/CLAUDE.md';
+  const globalClaudeMdPath = path.join(GLOBAL_DIR, 'CLAUDE.md');
   let globalClaudeMd: string | undefined;
   if (!input.isMain && fs.existsSync(globalClaudeMdPath)) {
     globalClaudeMd = fs.readFileSync(globalClaudeMdPath, 'utf-8');
   }
+
+  // Ensure group directory exists (host mode: may not exist on first run)
+  fs.mkdirSync(GROUP_DIR, { recursive: true });
+
+  const settingSources: ('project' | 'user')[] =
+    NANOCLAW_MODE === 'host' ? ['project', 'user'] : ['project'];
 
   try {
     log('Starting agent...');
@@ -270,7 +299,7 @@ async function main(): Promise<void> {
     for await (const message of query({
       prompt,
       options: {
-        cwd: '/workspace/group',
+        cwd: GROUP_DIR,
         resume: input.sessionId,
         systemPrompt: globalClaudeMd
           ? { type: 'preset' as const, preset: 'claude_code' as const, append: globalClaudeMd }
@@ -283,7 +312,7 @@ async function main(): Promise<void> {
         ],
         permissionMode: 'bypassPermissions',
         allowDangerouslySkipPermissions: true,
-        settingSources: ['project'],
+        settingSources,
         mcpServers: {
           nanoclaw: ipcMcp
         },

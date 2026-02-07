@@ -9,14 +9,11 @@ import fs from 'fs';
 import path from 'path';
 import { CronExpressionParser } from 'cron-parser';
 
-const IPC_DIR = '/workspace/ipc';
-const MESSAGES_DIR = path.join(IPC_DIR, 'messages');
-const TASKS_DIR = path.join(IPC_DIR, 'tasks');
-
 export interface IpcMcpContext {
   chatJid: string;
   groupFolder: string;
   isMain: boolean;
+  ipcDir: string;
 }
 
 function writeIpcFile(dir: string, data: object): string {
@@ -34,7 +31,9 @@ function writeIpcFile(dir: string, data: object): string {
 }
 
 export function createIpcMcp(ctx: IpcMcpContext) {
-  const { chatJid, groupFolder, isMain } = ctx;
+  const { chatJid, groupFolder, isMain, ipcDir } = ctx;
+  const MESSAGES_DIR = path.join(ipcDir, 'messages');
+  const TASKS_DIR = path.join(ipcDir, 'tasks');
 
   return createSdkMcpServer({
     name: 'nanoclaw',
@@ -117,7 +116,7 @@ SCHEDULE VALUE FORMAT (all times are LOCAL timezone):
           schedule_type: z.enum(['cron', 'interval', 'once']).describe('cron=recurring at specific times, interval=recurring every N ms, once=run once at specific time'),
           schedule_value: z.string().describe('cron: "*/5 * * * *" | interval: milliseconds like "300000" | once: local timestamp like "2026-02-01T15:30:00" (no Z suffix!)'),
           context_mode: z.enum(['group', 'isolated']).default('group').describe('group=runs with chat history and memory, isolated=fresh session (include context in prompt)'),
-          ...(isMain ? { target_group_jid: z.string().optional().describe('JID of the group to schedule the task for. The group must be registered — look up JIDs in /workspace/project/data/registered_groups.json (the keys are JIDs). If the group is not registered, let the user know and ask if they want to activate it. Defaults to the current group.') } : {}),
+          ...(isMain ? { target_group_jid: z.string().optional().describe('JID of the group to schedule the task for. The group must be registered — look up JIDs in the registered groups data file (available_groups.json in the IPC directory). If the group is not registered, let the user know and ask if they want to activate it. Defaults to the current group.') } : {}),
         },
         async (args) => {
           // Validate schedule_value before writing IPC
@@ -179,7 +178,7 @@ SCHEDULE VALUE FORMAT (all times are LOCAL timezone):
         'List all scheduled tasks. From main: shows all tasks. From other groups: shows only that group\'s tasks.',
         {},
         async () => {
-          const tasksFile = path.join(IPC_DIR, 'current_tasks.json');
+          const tasksFile = path.join(ipcDir, 'current_tasks.json');
 
           try {
             if (!fs.existsSync(tasksFile)) {
