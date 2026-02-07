@@ -135,9 +135,10 @@ function buildVolumeMounts(
   if (fs.existsSync(envFile)) {
     const envContent = fs.readFileSync(envFile, 'utf-8');
     const allowedVars = [
-      'CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY',
-      'CLAUDE_CODE_USE_BEDROCK', 'AWS_REGION',
+      'CLAUDE_CODE_OAUTH_TOKEN', 'ANTHROPIC_API_KEY', 'ANTHROPIC_MODEL',
+      'CLAUDE_CODE_USE_BEDROCK', 'AWS_REGION', 'AWS_BEDROCK_CROSS_REGION',
       'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_SESSION_TOKEN',
+      'ASSISTANT_NAME',
     ];
     const filteredLines = envContent.split('\n').filter((line) => {
       const trimmed = line.trim();

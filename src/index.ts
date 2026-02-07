@@ -352,6 +352,38 @@ async function sendMessage(jid: string, text: string): Promise<void> {
   }
 }
 
+async function sendImage(jid: string, imageSource: string, caption?: string): Promise<void> {
+  if (isSlackId(jid)) {
+    // Slack doesn't support image sending the same way - log and skip
+    logger.warn({ jid }, 'Image sending not supported for Slack');
+    return;
+  }
+  try {
+    // Determine if this is a URL or file path
+    const isUrl = imageSource.startsWith('http://') || imageSource.startsWith('https://');
+
+    let imageData: { url: string } | Buffer;
+    if (isUrl) {
+      imageData = { url: imageSource };
+    } else {
+      // Read file from disk
+      if (!fs.existsSync(imageSource)) {
+        logger.error({ jid, imageSource }, 'Image file not found');
+        return;
+      }
+      imageData = fs.readFileSync(imageSource);
+    }
+
+    await sock.sendMessage(jid, {
+      image: imageData,
+      caption: caption || undefined,
+    });
+    logger.info({ jid, imageSource: isUrl ? imageSource : '[local file]', hasCaption: !!caption }, 'Image sent');
+  } catch (err) {
+    logger.error({ jid, imageSource, err }, 'Failed to send image');
+  }
+}
+
 function startIpcWatcher(): void {
   if (ipcWatcherRunning) {
     logger.debug('IPC watcher already running, skipping duplicate start');
@@ -391,13 +423,12 @@ function startIpcWatcher(): void {
             const filePath = path.join(messagesDir, file);
             try {
               const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+              // Authorization: verify this group can send to this chatJid
+              const targetGroup = registeredGroups[data.chatJid];
+              const authorized = isMain || (targetGroup && targetGroup.folder === sourceGroup);
+
               if (data.type === 'message' && data.chatJid && data.text) {
-                // Authorization: verify this group can send to this chatJid
-                const targetGroup = registeredGroups[data.chatJid];
-                if (
-                  isMain ||
-                  (targetGroup && targetGroup.folder === sourceGroup)
-                ) {
+                if (authorized) {
                   await sendMessage(
                     data.chatJid,
                     `${ASSISTANT_NAME}: ${data.text}`,
@@ -410,6 +441,20 @@ function startIpcWatcher(): void {
                   logger.warn(
                     { chatJid: data.chatJid, sourceGroup },
                     'Unauthorized IPC message attempt blocked',
+                  );
+                }
+              } else if (data.type === 'image' && data.chatJid && data.image) {
+                if (authorized) {
+                  const caption = data.caption ? `${ASSISTANT_NAME}: ${data.caption}` : undefined;
+                  await sendImage(data.chatJid, data.image, caption);
+                  logger.info(
+                    { chatJid: data.chatJid, sourceGroup },
+                    'IPC image sent',
+                  );
+                } else {
+                  logger.warn(
+                    { chatJid: data.chatJid, sourceGroup },
+                    'Unauthorized IPC image attempt blocked',
                   );
                 }
               }

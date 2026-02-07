@@ -67,6 +67,34 @@ export function createIpcMcp(ctx: IpcMcpContext) {
       ),
 
       tool(
+        'send_image',
+        'Send an image to the user or group. The image is delivered immediately while you\'re still running. You can send images from URLs or local file paths.',
+        {
+          image: z.string().describe('URL or local file path to the image'),
+          caption: z.string().optional().describe('Optional caption for the image')
+        },
+        async (args) => {
+          const data = {
+            type: 'image',
+            chatJid,
+            image: args.image,
+            caption: args.caption,
+            groupFolder,
+            timestamp: new Date().toISOString()
+          };
+
+          writeIpcFile(MESSAGES_DIR, data);
+
+          return {
+            content: [{
+              type: 'text',
+              text: 'Image sent.'
+            }]
+          };
+        }
+      ),
+
+      tool(
         'schedule_task',
         `Schedule a recurring or one-time task. The task will run as a full agent with access to all tools.
 
