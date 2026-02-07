@@ -47,10 +47,10 @@ Plans:
   2. Config values containing `${VAR}` are expanded from environment variables before validation
   3. Config values containing `${VAR:-default}` use the default when the env var is unset
   4. MCP server args and paths with env var references resolve correctly at startup
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md -- Config template and env expansion: create nanoclaw.config.jsonc template, add ${VAR} and ${VAR:-default} expansion to config-loader pipeline
 
 ### Phase 3: Agent-Runner Path Flexibility
 **Goal**: The existing agent-runner code accepts paths via environment variables, enabling the same codebase to run inside containers (with `/workspace/*` defaults) or on the host (with absolute macOS paths)
@@ -152,7 +152,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Config Loader | 2/2 | ✓ Complete | 2026-02-07 |
-| 2. Config Template and Env Expansion | 0/1 | Not started | - |
+| 2. Config Template and Env Expansion | 0/1 | Planned | - |
 | 3. Agent-Runner Path Flexibility | 0/2 | Not started | - |
 | 4. Runner Abstraction and Host Runner | 0/2 | Not started | - |
 | 5. Host Mode Security | 0/3 | Not started | - |
