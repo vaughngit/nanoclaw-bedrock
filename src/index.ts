@@ -16,6 +16,7 @@ import {
   IPC_POLL_INTERVAL,
   MAIN_GROUP_FOLDER,
   POLL_INTERVAL,
+  SLACK_ENABLED,
   STORE_DIR,
   TIMEZONE,
   TRIGGER_PATTERN,
@@ -50,6 +51,13 @@ import {
   updateTask,
 } from './db.js';
 import { GroupQueue } from './group-queue.js';
+import {
+  connectSlack,
+  disconnectSlack,
+  isSlackId,
+  sendSlackMessage,
+  setSlackTyping,
+} from './slack.js';
 import { startSchedulerLoop } from './task-scheduler.js';
 import { RegisteredGroup } from './types.js';
 import { logger } from './logger.js';
@@ -86,6 +94,10 @@ function translateJid(jid: string): string {
 }
 
 async function setTyping(jid: string, isTyping: boolean): Promise<void> {
+  if (isSlackId(jid)) {
+    setSlackTyping(jid, isTyping);
+    return;
+  }
   try {
     await sock.sendPresenceUpdate(isTyping ? 'composing' : 'paused', jid);
   } catch (err) {
@@ -180,7 +192,7 @@ function getAvailableGroups(): AvailableGroup[] {
   const registeredJids = new Set(Object.keys(registeredGroups));
 
   return chats
-    .filter((c) => c.jid !== '__group_sync__' && c.jid.endsWith('@g.us'))
+    .filter((c) => c.jid !== '__group_sync__' && (c.jid.endsWith('@g.us') || isSlackId(c.jid)))
     .map((c) => ({
       jid: c.jid,
       name: c.name,
@@ -328,6 +340,10 @@ async function runAgent(
 }
 
 async function sendMessage(jid: string, text: string): Promise<void> {
+  if (isSlackId(jid)) {
+    await sendSlackMessage(jid, text);
+    return;
+  }
   try {
     await sock.sendMessage(jid, { text });
     logger.info({ jid, length: text.length }, 'Message sent');
@@ -680,6 +696,31 @@ async function processTaskIpc(
   }
 }
 
+let sharedServicesStarted = false;
+
+/**
+ * Start services shared between WhatsApp and Slack: message loop, scheduler, IPC watcher.
+ * Called once — either when WhatsApp connects or when Slack is the only channel.
+ * Safe to call multiple times (guards prevent duplicate starts).
+ */
+function startSharedServices(): void {
+  if (sharedServicesStarted) return;
+  sharedServicesStarted = true;
+
+  startSchedulerLoop({
+    sendMessage,
+    registeredGroups: () => registeredGroups,
+    getSessions: () => sessions,
+    queue,
+    onProcess: (groupJid, proc, containerName) =>
+      queue.registerProcess(groupJid, proc, containerName),
+  });
+  startIpcWatcher();
+  queue.setProcessMessagesFn(processGroupMessages);
+  recoverPendingMessages();
+  startMessageLoop();
+}
+
 async function connectWhatsApp(): Promise<void> {
   const authDir = path.join(STORE_DIR, 'auth');
   fs.mkdirSync(authDir, { recursive: true });
@@ -747,17 +788,8 @@ async function connectWhatsApp(): Promise<void> {
           );
         }, GROUP_SYNC_INTERVAL_MS);
       }
-      startSchedulerLoop({
-        sendMessage,
-        registeredGroups: () => registeredGroups,
-        getSessions: () => sessions,
-        queue,
-        onProcess: (groupJid, proc, containerName) => queue.registerProcess(groupJid, proc, containerName),
-      });
-      startIpcWatcher();
-      queue.setProcessMessagesFn(processGroupMessages);
-      recoverPendingMessages();
-      startMessageLoop();
+      // Start shared services (guards prevent duplicate starts on reconnect)
+      startSharedServices();
     }
   });
 
@@ -919,11 +951,23 @@ async function main(): Promise<void> {
   // Graceful shutdown handlers
   const shutdown = async (signal: string) => {
     logger.info({ signal }, 'Shutdown signal received');
+    await disconnectSlack();
     await queue.shutdown(10000);
     process.exit(0);
   };
   process.on('SIGTERM', () => shutdown('SIGTERM'));
   process.on('SIGINT', () => shutdown('SIGINT'));
+
+  // Connect Slack before WhatsApp (if configured)
+  if (SLACK_ENABLED) {
+    await connectSlack({
+      registeredGroups: () => registeredGroups,
+      onMessage: (channelId) => queue.enqueueMessageCheck(channelId),
+    });
+    // Start shared services immediately so Slack messages are processed
+    // even before WhatsApp connects (guards prevent duplicate starts)
+    startSharedServices();
+  }
 
   await connectWhatsApp();
 }

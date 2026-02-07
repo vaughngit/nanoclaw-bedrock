@@ -45,6 +45,11 @@ export const TRIGGER_PATTERN = new RegExp(
   'i',
 );
 
+// Slack configuration
+export const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN || '';
+export const SLACK_APP_TOKEN = process.env.SLACK_APP_TOKEN || '';
+export const SLACK_ENABLED = !!(SLACK_BOT_TOKEN && SLACK_APP_TOKEN);
+
 // Timezone for scheduled tasks (cron expressions, etc.)
 // Uses system timezone by default
 export const TIMEZONE =

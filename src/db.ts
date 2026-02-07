@@ -87,6 +87,15 @@ export function initDatabase(): void {
     /* column already exists */
   }
 
+  // Add channel_type column if it doesn't exist (migration for Slack support)
+  try {
+    db.exec(
+      `ALTER TABLE registered_groups ADD COLUMN channel_type TEXT DEFAULT 'whatsapp'`,
+    );
+  } catch {
+    /* column already exists */
+  }
+
   // State tables (replacing JSON files)
   db.exec(`
     CREATE TABLE IF NOT EXISTS router_state (
@@ -200,7 +209,25 @@ export function setLastGroupSync(): void {
 }
 
 /**
- * Store a message with full content.
+ * Store a message with full content using plain fields.
+ * Channel-agnostic: works for WhatsApp, Slack, or any future channel.
+ */
+export function storeGenericMessage(
+  msgId: string,
+  chatJid: string,
+  sender: string,
+  senderName: string,
+  content: string,
+  timestamp: string,
+  isFromMe: boolean,
+): void {
+  db.prepare(
+    `INSERT OR REPLACE INTO messages (id, chat_jid, sender, sender_name, content, timestamp, is_from_me) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(msgId, chatJid, sender, senderName, content, timestamp, isFromMe ? 1 : 0);
+}
+
+/**
+ * Store a message with full content from a WhatsApp Baileys message object.
  * Only call this for registered groups where message history is needed.
  */
 export function storeMessage(
@@ -223,17 +250,7 @@ export function storeMessage(
   const senderName = pushName || sender.split('@')[0];
   const msgId = msg.key.id || '';
 
-  db.prepare(
-    `INSERT OR REPLACE INTO messages (id, chat_jid, sender, sender_name, content, timestamp, is_from_me) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    msgId,
-    chatJid,
-    sender,
-    senderName,
-    content,
-    timestamp,
-    isFromMe ? 1 : 0,
-  );
+  storeGenericMessage(msgId, chatJid, sender, senderName, content, timestamp, isFromMe);
 }
 
 export function getNewMessages(
@@ -471,6 +488,7 @@ export function getRegisteredGroup(
         added_at: string;
         container_config: string | null;
         requires_trigger: number | null;
+        channel_type: string | null;
       }
     | undefined;
   if (!row) return undefined;
@@ -484,6 +502,7 @@ export function getRegisteredGroup(
       ? JSON.parse(row.container_config)
       : undefined,
     requiresTrigger: row.requires_trigger === null ? undefined : row.requires_trigger === 1,
+    channelType: (row.channel_type as 'whatsapp' | 'slack') || 'whatsapp',
   };
 }
 
@@ -492,8 +511,8 @@ export function setRegisteredGroup(
   group: RegisteredGroup,
 ): void {
   db.prepare(
-    `INSERT OR REPLACE INTO registered_groups (jid, name, folder, trigger_pattern, added_at, container_config, requires_trigger)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT OR REPLACE INTO registered_groups (jid, name, folder, trigger_pattern, added_at, container_config, requires_trigger, channel_type)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     jid,
     group.name,
@@ -502,6 +521,7 @@ export function setRegisteredGroup(
     group.added_at,
     group.containerConfig ? JSON.stringify(group.containerConfig) : null,
     group.requiresTrigger === undefined ? 1 : group.requiresTrigger ? 1 : 0,
+    group.channelType || 'whatsapp',
   );
 }
 
@@ -516,6 +536,7 @@ export function getAllRegisteredGroups(): Record<string, RegisteredGroup> {
     added_at: string;
     container_config: string | null;
     requires_trigger: number | null;
+    channel_type: string | null;
   }>;
   const result: Record<string, RegisteredGroup> = {};
   for (const row of rows) {
@@ -528,6 +549,7 @@ export function getAllRegisteredGroups(): Record<string, RegisteredGroup> {
         ? JSON.parse(row.container_config)
         : undefined,
       requiresTrigger: row.requires_trigger === null ? undefined : row.requires_trigger === 1,
+      channelType: (row.channel_type as 'whatsapp' | 'slack') || 'whatsapp',
     };
   }
   return result;
