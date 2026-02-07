@@ -1,0 +1,109 @@
+# Requirements: NanoClaw Host-Native Runner
+
+**Defined:** 2026-02-07
+**Core Value:** Users can toggle between container isolation and host-native execution via a single config file
+
+## v1 Requirements
+
+Requirements for initial release. Each maps to roadmap phases.
+
+### Configuration System
+
+- [ ] **CFG-01**: App reads `nanoclaw.config.jsonc` from project root, parsing JSONC (JSON with Comments)
+- [ ] **CFG-02**: Config validation runs at startup with actionable error messages pointing to exact problems (field name, expected value, what was found)
+- [ ] **CFG-03**: App runs in container mode with current behavior when config file is absent (zero behavioral change for existing users)
+- [ ] **CFG-04**: Config file ships as a self-documenting template with extensive inline comments explaining every field, every mode, and every trade-off
+- [ ] **CFG-05**: Config values support `${VAR}` and `${VAR:-default}` environment variable expansion, especially for MCP server args and paths
+
+### Execution Mode
+
+- [ ] **EXEC-01**: Config has an `executionMode` field accepting `"container"` or `"host"`, defaulting to `"container"`
+- [ ] **EXEC-02**: Startup prints a clear, unmistakable banner/warning when running in host mode, stating the agent has full macOS access
+- [ ] **EXEC-03**: Host runner spawns `claude` (agent-runner) directly on macOS as a subprocess instead of inside a container
+- [ ] **EXEC-04**: Host runner reuses the existing agent-runner code with path-configurable env vars (not a separate implementation)
+- [ ] **EXEC-05**: Container runner continues working unchanged when `executionMode` is `"container"`
+- [ ] **EXEC-06**: Config exposes macOS Seatbelt sandbox settings for host mode via the Agent SDK's `sandbox` option, with clear documentation on how to enable/disable/customize
+- [ ] **EXEC-07**: Sandbox settings are prominently documented in the config template so users can easily unlock or tighten restrictions
+
+### MCP Servers
+
+- [ ] **MCP-01**: MCP servers configured in `nanoclaw.config.jsonc` with a `modes` array per server (`["host"]`, `["container"]`, or `["host", "container"]`)
+- [ ] **MCP-02**: Servers without a `modes` field default to `["host", "container"]` (available in both modes)
+- [ ] **MCP-03**: Runner filters MCP servers at agent startup, only loading servers whose `modes` include the current execution mode
+- [ ] **MCP-04**: Host mode uses `settingSources: ['user', 'project']` to inherit global MCP servers from `~/.claude/settings.json`
+- [ ] **MCP-05**: Startup logs which MCP servers are active and which were filtered out due to mode incompatibility
+- [ ] **MCP-06**: On startup, attempt to connect to each configured MCP server and report status (connected/failed/timeout) without blocking startup
+
+### Per-Group Overrides
+
+- [ ] **GRP-01**: Individual groups in `registered_groups.json` can specify an `executionMode` field that overrides the global config
+- [ ] **GRP-02**: Groups without an `executionMode` field inherit the global setting
+- [ ] **GRP-03**: Per-group mode is resolved at message-processing time, not at startup
+
+### Host Mode Security
+
+- [ ] **SEC-01**: Host mode tool allow-list configurable in config, controlling which tools the agent can use (defaults to full Claude Code tool set)
+- [ ] **SEC-02**: IPC authorization works correctly in host mode (agents can only write to their own group's IPC directory)
+- [ ] **SEC-03**: Non-main groups in host mode do not receive `bypassPermissions` — they use default permission mode or sandbox mode
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Operations
+
+- **OPS-01**: Config reload on SIGHUP signal without restart
+- **OPS-02**: Per-group MCP server configuration (separate from global)
+- **OPS-03**: Mode-switching startup diff — show what changed since last run
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Runtime mode auto-detection | Invisible, hard-to-debug behavior; explicit config is non-negotiable |
+| Mode switching via chat command | Security-critical config must not be agent-changeable |
+| GUI config editor / web dashboard | Contradicts AI-native philosophy; Claude Code is the editor |
+| Config file inheritance / cascading | One file, one source of truth; prevents "where is this setting?" debugging |
+| JSON Schema `$schema` reference | Premature for a personal tool; self-documenting comments are sufficient |
+| Plugin/extension system for modes | Two modes is sufficient; customization = code changes |
+| Encrypted config values | Secrets stay in `.env`, config stays in JSONC; don't mix them |
+| Remote config fetching | Local file, versioned, deterministic |
+| Hybrid mode (auto-route by trust level) | Adds complexity; per-group explicit overrides (GRP-01) are sufficient |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| CFG-01 | - | Pending |
+| CFG-02 | - | Pending |
+| CFG-03 | - | Pending |
+| CFG-04 | - | Pending |
+| CFG-05 | - | Pending |
+| EXEC-01 | - | Pending |
+| EXEC-02 | - | Pending |
+| EXEC-03 | - | Pending |
+| EXEC-04 | - | Pending |
+| EXEC-05 | - | Pending |
+| EXEC-06 | - | Pending |
+| EXEC-07 | - | Pending |
+| MCP-01 | - | Pending |
+| MCP-02 | - | Pending |
+| MCP-03 | - | Pending |
+| MCP-04 | - | Pending |
+| MCP-05 | - | Pending |
+| MCP-06 | - | Pending |
+| GRP-01 | - | Pending |
+| GRP-02 | - | Pending |
+| GRP-03 | - | Pending |
+| SEC-01 | - | Pending |
+| SEC-02 | - | Pending |
+| SEC-03 | - | Pending |
+
+**Coverage:**
+- v1 requirements: 24 total
+- Mapped to phases: 0
+- Unmapped: 24
+
+---
+*Requirements defined: 2026-02-07*
+*Last updated: 2026-02-07 after initial definition*
