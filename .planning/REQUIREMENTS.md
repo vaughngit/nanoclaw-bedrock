@@ -12,8 +12,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CFG-01**: App reads `nanoclaw.config.jsonc` from project root, parsing JSONC (JSON with Comments)
 - [x] **CFG-02**: Config validation runs at startup with actionable error messages pointing to exact problems (field name, expected value, what was found)
 - [x] **CFG-03**: App runs in container mode with current behavior when config file is absent (zero behavioral change for existing users)
-- [ ] **CFG-04**: Config file ships as a self-documenting template with extensive inline comments explaining every field, every mode, and every trade-off
-- [ ] **CFG-05**: Config values support `${VAR}` and `${VAR:-default}` environment variable expansion, especially for MCP server args and paths
+- [x] **CFG-04**: Config file ships as a self-documenting template with extensive inline comments explaining every field, every mode, and every trade-off
+- [x] **CFG-05**: Config values support `${VAR}` and `${VAR:-default}` environment variable expansion, especially for MCP server args and paths
 
 ### Execution Mode
 
@@ -77,8 +77,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | CFG-01 | Phase 1 | Complete |
 | CFG-02 | Phase 1 | Complete |
 | CFG-03 | Phase 1 | Complete |
-| CFG-04 | Phase 2 | Pending |
-| CFG-05 | Phase 2 | Pending |
+| CFG-04 | Phase 2 | Complete |
+| CFG-05 | Phase 2 | Complete |
 | EXEC-01 | Phase 1 | Complete |
 | EXEC-02 | Phase 8 | Pending |
 | EXEC-03 | Phase 4 | Pending |
@@ -106,4 +106,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-07 after roadmap creation*
+*Last updated: 2026-02-07 after Phase 2 completion*

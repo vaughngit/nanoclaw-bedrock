@@ -13,7 +13,7 @@ This roadmap delivers configurable execution mode switching for NanoClaw via a J
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Config Loader** - Parse JSONC config, validate with Zod, merge defaults, export typed config
-- [ ] **Phase 2: Config Template and Env Expansion** - Ship self-documenting config file with environment variable support
+- [x] **Phase 2: Config Template and Env Expansion** - Ship self-documenting config file with environment variable support
 - [ ] **Phase 3: Agent-Runner Path Flexibility** - Make agent-runner path-configurable via env vars for dual-mode reuse
 - [ ] **Phase 4: Runner Abstraction and Host Runner** - Spawn agents directly on macOS as subprocesses using shared runner interface
 - [ ] **Phase 5: Host Mode Security** - Enforce macOS Seatbelt sandbox, IPC authorization, and permission boundaries in host mode
@@ -50,7 +50,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md -- Config template and env expansion: create nanoclaw.config.jsonc template, add ${VAR} and ${VAR:-default} expansion to config-loader pipeline
+- [x] 02-01-PLAN.md -- Config template and env expansion: create nanoclaw.config.jsonc template, add ${VAR} and ${VAR:-default} expansion to config-loader pipeline
 
 ### Phase 3: Agent-Runner Path Flexibility
 **Goal**: The existing agent-runner code accepts paths via environment variables, enabling the same codebase to run inside containers (with `/workspace/*` defaults) or on the host (with absolute macOS paths)
@@ -152,7 +152,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Config Loader | 2/2 | ✓ Complete | 2026-02-07 |
-| 2. Config Template and Env Expansion | 0/1 | Planned | - |
+| 2. Config Template and Env Expansion | 1/1 | ✓ Complete | 2026-02-07 |
 | 3. Agent-Runner Path Flexibility | 0/2 | Not started | - |
 | 4. Runner Abstraction and Host Runner | 0/2 | Not started | - |
 | 5. Host Mode Security | 0/3 | Not started | - |
