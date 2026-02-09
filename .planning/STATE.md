@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 5 in progress -- security config schema done, runner and agent-runner integration next
+**Current focus:** Phase 5 in progress -- security enforcement active in agent-runner, end-to-end verification next
 
 ## Current Position
 
 Phase: 5 of 8 (Host Mode Security)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-02-09 -- Completed 05-01-PLAN.md
+Last activity: 2026-02-09 -- Completed 05-02-PLAN.md
 
-Progress: [████████░░░░░░░░] ~54%
+Progress: [█████████░░░░░░░] ~62%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 10.3 min
-- Total execution time: 72 min
+- Total plans completed: 8
+- Average duration: 9.5 min
+- Total execution time: 76 min
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [████████░░░░░░░░] ~54%
 | 02-config-template-and-env-expansion | 1/1 | 3 min | 3 min |
 | 03-agent-runner-path-flexibility | 1/1 | 3 min | 3 min |
 | 04-runner-abstraction-and-host-runner | 2/2 | 48 min | 24 min |
-| 05-host-mode-security | 1/3 | 3 min | 3 min |
+| 05-host-mode-security | 2/3 | 7 min | 3.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 03-01 (3 min), 04-01 (3 min), 04-02 (~45 min), 05-01 (3 min)
+- Last 5 plans: 04-01 (3 min), 04-02 (~45 min), 05-01 (3 min), 05-02 (4 min)
 - Note: 04-02 included human checkpoint, WhatsApp debugging, and session resume fix
 
 *Updated after each plan completion*
@@ -73,6 +73,11 @@ Recent decisions affecting current work:
 - [05-01]: Field named `tools` (not `allowedTools`) -- maps to SDK `tools` query option (availability restriction)
 - [05-01]: tools min(1) when present -- prevents accidentally disabling all tools
 - [05-01]: ContainerInput.security optional -- undefined means no restrictions (main group)
+- [05-02]: tools (not allowedTools) for non-main -- tools restricts availability, allowedTools only auto-approves
+- [05-02]: mcp__nanoclaw__* always included via wildcard -- agents always need IPC communication
+- [05-02]: settingSources ['project'] only for non-main -- prevents shared ~/.claude leaks
+- [05-02]: sandbox only in host mode -- container mode has its own isolation
+- [05-02]: allowUnsandboxedCommands: false -- prevents model from escaping sandbox
 
 ### Pending Todos
 
@@ -80,13 +85,13 @@ None.
 
 ### Blockers/Concerns
 
-- Phase 5 (Host Mode Security): sandbox-runtime integration needs deep research before implementation -- flagged by research summary as MEDIUM confidence area
+- Phase 5 (Host Mode Security): sandbox integration implemented (05-02), pending end-to-end verification in 05-03
 - Phase 7 (MCP Health Checks): Agent SDK mcpServerStatus() API existence unverified -- may need alternative approach
 - ESM pattern note: Any future module-level singletons that log at import time must use process.stderr.write, not pino logger (async transport timing issue)
 - Cross-mode sessions: Container-mode session IDs don't have transcript files on host filesystem. Agent-runner now retries without session, but database still stores stale session IDs until overwritten by new sessions.
 
 ## Session Continuity
 
-Last session: 2026-02-09T04:31:00Z
-Stopped at: Completed 05-01-PLAN.md. Ready for 05-02 (host-runner security integration).
+Last session: 2026-02-09T04:38:00Z
+Stopped at: Completed 05-02-PLAN.md. Ready for 05-03 (end-to-end security verification).
 Resume file: None
