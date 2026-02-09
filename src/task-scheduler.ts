@@ -27,7 +27,7 @@ export interface SchedulerDependencies {
   registeredGroups: () => Record<string, RegisteredGroup>;
   getSessions: () => Record<string, string>;
   queue: GroupQueue;
-  onProcess: (groupJid: string, proc: ChildProcess, containerName: string) => void;
+  onProcess: (groupJid: string, proc: ChildProcess, containerName: string | null) => void;
 }
 
 async function runTask(
