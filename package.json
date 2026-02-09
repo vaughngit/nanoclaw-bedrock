@@ -11,7 +11,8 @@
     "auth": "tsx src/whatsapp-auth.ts",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\""
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "build:agent": "cd container/agent-runner && npm run build"
   },
   "dependencies": {
     "@slack/bolt": "^4.6.0",
