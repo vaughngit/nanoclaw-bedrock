@@ -75,11 +75,11 @@ Plans:
   2. Host runner uses the same stdin/stdout/sentinel protocol as container-runner for output parsing
   3. Host runner registers spawned processes with GroupQueue for shutdown coordination (same `onProcess` callback pattern)
   4. A message sent to a registered group in host mode produces a response from the agent (end-to-end verification)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md -- Host runner module: build:agent script, GroupQueue type fix, src/host-runner.ts with runHostAgent()
+- [ ] 04-02-PLAN.md -- Wire mode routing: index.ts and task-scheduler.ts route to correct runner, conditional container check, end-to-end verification
 
 ### Phase 5: Host Mode Security
 **Goal**: Host mode agents run within macOS Seatbelt sandbox boundaries, with IPC authorization preventing cross-group access and permission controls matching the safety properties that containers provided
@@ -153,7 +153,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Config Loader | 2/2 | ✓ Complete | 2026-02-07 |
 | 2. Config Template and Env Expansion | 1/1 | ✓ Complete | 2026-02-07 |
 | 3. Agent-Runner Path Flexibility | 1/1 | ✓ Complete | 2026-02-07 |
-| 4. Runner Abstraction and Host Runner | 0/2 | Not started | - |
+| 4. Runner Abstraction and Host Runner | 0/2 | Planned | - |
 | 5. Host Mode Security | 0/3 | Not started | - |
 | 6. MCP Server Configuration and Filtering | 0/2 | Not started | - |
 | 7. MCP Inheritance and Health Checks | 0/2 | Not started | - |
