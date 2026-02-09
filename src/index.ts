@@ -323,6 +323,13 @@ async function runAgent(
           group,
           agentInput,
           (proc, containerName) => queue.registerProcess(chatJid, proc, containerName),
+          {
+            hostSecurity: config.hostSecurity,
+            mainGroupJid: Object.entries(registeredGroups).find(
+              ([, g]) => g.folder === MAIN_GROUP_FOLDER,
+            )?.[0],
+            mainGroupFolder: MAIN_GROUP_FOLDER,
+          },
         )
       : await runContainerAgent(
           group,

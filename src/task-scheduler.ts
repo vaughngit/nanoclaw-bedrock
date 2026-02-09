@@ -12,7 +12,7 @@ import {
 } from './config.js';
 import { config } from './config-loader.js';
 import { runContainerAgent, writeTasksSnapshot } from './container-runner.js';
-import { runHostAgent } from './host-runner.js';
+import { runHostAgent, HostRunnerSecurityContext } from './host-runner.js';
 import {
   getAllTasks,
   getDueTasks,
@@ -100,11 +100,21 @@ async function runTask(
       isMain,
     };
 
+    // Resolve security context for host mode
+    const securityCtx: HostRunnerSecurityContext = {
+      hostSecurity: config.hostSecurity,
+      mainGroupJid: Object.entries(groups).find(
+        ([, g]) => g.folder === MAIN_GROUP_FOLDER,
+      )?.[0],
+      mainGroupFolder: MAIN_GROUP_FOLDER,
+    };
+
     const output = config.executionMode === 'host'
       ? await runHostAgent(
           group,
           agentInput,
           (proc, containerName) => deps.onProcess(task.chat_jid, proc, containerName),
+          securityCtx,
         )
       : await runContainerAgent(
           group,

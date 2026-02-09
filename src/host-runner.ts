@@ -12,9 +12,16 @@ import {
   DATA_DIR,
   GROUPS_DIR,
 } from './config.js';
+import { HostSecurityConfig } from './config-loader.js';
 import { ContainerInput, ContainerOutput } from './container-runner.js';
 import { logger } from './logger.js';
 import { RegisteredGroup } from './types.js';
+
+export interface HostRunnerSecurityContext {
+  hostSecurity?: HostSecurityConfig;
+  mainGroupJid?: string;    // For sandbox violation alerts
+  mainGroupFolder: string;  // Always 'main'
+}
 
 // Sentinel markers for robust output parsing (must match agent-runner)
 const OUTPUT_START_MARKER = '---NANOCLAW_OUTPUT_START---';
@@ -33,6 +40,7 @@ export async function runHostAgent(
   group: RegisteredGroup,
   input: ContainerInput,
   onProcess: (proc: ChildProcess, containerName: null) => void,
+  securityCtx?: HostRunnerSecurityContext,
 ): Promise<ContainerOutput> {
   const startTime = Date.now();
 
@@ -93,10 +101,29 @@ export async function runHostAgent(
     'Host agent configuration',
   );
 
+  // Resolve security config for non-main groups
+  const isMain = input.isMain;
+  if (!isMain && securityCtx?.hostSecurity) {
+    input.security = {
+      sandbox: securityCtx.hostSecurity.sandbox,
+      tools: securityCtx.hostSecurity.tools,
+    };
+    logger.debug(
+      {
+        group: group.name,
+        sandbox: input.security.sandbox,
+        tools: input.security.tools ?? 'all (default)',
+      },
+      'Host agent security config applied',
+    );
+  }
+
   logger.info(
     {
       group: group.name,
       isMain: input.isMain,
+      sandboxed: !isMain && input.security?.sandbox !== false,
+      permissionMode: isMain ? 'bypassPermissions' : 'default',
     },
     'Spawning host agent',
   );
