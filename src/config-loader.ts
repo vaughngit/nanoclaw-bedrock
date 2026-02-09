@@ -13,11 +13,26 @@ import { z } from 'zod';
 const CONFIG_FILENAME = 'nanoclaw.config.jsonc';
 
 // Schema: z.strictObject rejects unknown keys (catches typos like "executonMode")
+
+const HostSecuritySchema = z.strictObject({
+  /** macOS Seatbelt sandbox for non-main group Bash commands */
+  sandbox: z.boolean().default(true),
+  /**
+   * Positive allowlist of tools for non-main groups.
+   * Maps to the SDK's `tools` query option (restricts availability).
+   * When undefined: full tool set. When present: must be non-empty (min 1).
+   * NOT the same as `allowedTools` (which only controls auto-approval).
+   */
+  tools: z.array(z.string()).min(1).optional(),
+});
+
 const NanoClawConfigSchema = z.strictObject({
   executionMode: z.enum(['container', 'host']).default('container'),
+  hostSecurity: HostSecuritySchema.optional(),
 });
 
 export type NanoClawConfig = z.output<typeof NanoClawConfigSchema>;
+export type HostSecurityConfig = z.output<typeof HostSecuritySchema>;
 
 /**
  * Format Zod validation issues into human-readable lines for error banner.
@@ -220,7 +235,7 @@ function loadAndValidateConfig(): NanoClawConfig {
   }
 
   const config = Object.freeze(result.data);
-  process.stderr.write(`[config] Config loaded: executionMode=${config.executionMode}\n`);
+  process.stderr.write(`[config] Config loaded: executionMode=${config.executionMode}${config.hostSecurity ? `, sandbox=${config.hostSecurity.sandbox}` : ''}\n`);
   return config;
 }
 
