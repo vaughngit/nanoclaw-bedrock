@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 4 complete, ready for Phase 5
+**Current focus:** Phase 5 in progress -- security config schema done, runner and agent-runner integration next
 
 ## Current Position
 
-Phase: 4 of 8 (Runner Abstraction and Host Runner) -- COMPLETE
-Next: Phase 5 (Host Mode Security)
-Status: Phase 4 verified, ready for Phase 5
-Last activity: 2026-02-09 -- Completed Phase 4 (all plans verified)
+Phase: 5 of 8 (Host Mode Security)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-02-09 -- Completed 05-01-PLAN.md
 
-Progress: [████████░░░░░░░░] ~50%
+Progress: [████████░░░░░░░░] ~54%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 11.5 min
-- Total execution time: 69 min
+- Total plans completed: 7
+- Average duration: 10.3 min
+- Total execution time: 72 min
 
 **By Phase:**
 
@@ -31,9 +31,10 @@ Progress: [████████░░░░░░░░] ~50%
 | 02-config-template-and-env-expansion | 1/1 | 3 min | 3 min |
 | 03-agent-runner-path-flexibility | 1/1 | 3 min | 3 min |
 | 04-runner-abstraction-and-host-runner | 2/2 | 48 min | 24 min |
+| 05-host-mode-security | 1/3 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (3 min), 03-01 (3 min), 04-01 (3 min), 04-02 (~45 min)
+- Last 5 plans: 03-01 (3 min), 04-01 (3 min), 04-02 (~45 min), 05-01 (3 min)
 - Note: 04-02 included human checkpoint, WhatsApp debugging, and session resume fix
 
 *Updated after each plan completion*
@@ -68,6 +69,10 @@ Recent decisions affecting current work:
 - [04-02]: Ternary inline routing (not strategy pattern) for two execution modes
 - [04-02]: Retry agent without session on resume failure (cross-mode session incompatibility)
 - [04-02]: Startup logs execution mode immediately after loadState() for debugging visibility
+- [05-01]: HostSecuritySchema uses z.strictObject -- consistent with existing pattern, catches typos
+- [05-01]: Field named `tools` (not `allowedTools`) -- maps to SDK `tools` query option (availability restriction)
+- [05-01]: tools min(1) when present -- prevents accidentally disabling all tools
+- [05-01]: ContainerInput.security optional -- undefined means no restrictions (main group)
 
 ### Pending Todos
 
@@ -82,6 +87,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-09T02:30:00Z
-Stopped at: Phase 4 complete and verified. Ready for Phase 5 (Host Mode Security).
+Last session: 2026-02-09T04:31:00Z
+Stopped at: Completed 05-01-PLAN.md. Ready for 05-02 (host-runner security integration).
 Resume file: None
