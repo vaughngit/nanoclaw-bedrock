@@ -16,7 +16,15 @@ export interface IpcMcpContext {
   ipcDir: string;
 }
 
-function writeIpcFile(dir: string, data: object): string {
+function writeIpcFile(dir: string, baseIpcDir: string, data: object): string {
+  // Defense in depth: verify target dir is within our IPC namespace
+  const normalizedDir = path.resolve(dir);
+  const normalizedBase = path.resolve(baseIpcDir);
+  if (!normalizedDir.startsWith(normalizedBase + path.sep) &&
+      normalizedDir !== normalizedBase) {
+    throw new Error(`IPC write blocked: ${dir} is outside authorized IPC directory ${baseIpcDir}`);
+  }
+
   fs.mkdirSync(dir, { recursive: true });
 
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`;
@@ -54,7 +62,7 @@ export function createIpcMcp(ctx: IpcMcpContext) {
             timestamp: new Date().toISOString()
           };
 
-          writeIpcFile(MESSAGES_DIR, data);
+          writeIpcFile(MESSAGES_DIR, ipcDir, data);
 
           return {
             content: [{
@@ -82,7 +90,7 @@ export function createIpcMcp(ctx: IpcMcpContext) {
             timestamp: new Date().toISOString()
           };
 
-          writeIpcFile(MESSAGES_DIR, data);
+          writeIpcFile(MESSAGES_DIR, ipcDir, data);
 
           return {
             content: [{
@@ -161,7 +169,7 @@ SCHEDULE VALUE FORMAT (all times are LOCAL timezone):
             timestamp: new Date().toISOString()
           };
 
-          const filename = writeIpcFile(TASKS_DIR, data);
+          const filename = writeIpcFile(TASKS_DIR, ipcDir, data);
 
           return {
             content: [{
@@ -241,7 +249,7 @@ SCHEDULE VALUE FORMAT (all times are LOCAL timezone):
             timestamp: new Date().toISOString()
           };
 
-          writeIpcFile(TASKS_DIR, data);
+          writeIpcFile(TASKS_DIR, ipcDir, data);
 
           return {
             content: [{
@@ -267,7 +275,7 @@ SCHEDULE VALUE FORMAT (all times are LOCAL timezone):
             timestamp: new Date().toISOString()
           };
 
-          writeIpcFile(TASKS_DIR, data);
+          writeIpcFile(TASKS_DIR, ipcDir, data);
 
           return {
             content: [{
@@ -293,7 +301,7 @@ SCHEDULE VALUE FORMAT (all times are LOCAL timezone):
             timestamp: new Date().toISOString()
           };
 
-          writeIpcFile(TASKS_DIR, data);
+          writeIpcFile(TASKS_DIR, ipcDir, data);
 
           return {
             content: [{
@@ -332,7 +340,7 @@ Use available_groups.json to find the JID for a group. The folder name should be
             timestamp: new Date().toISOString()
           };
 
-          writeIpcFile(TASKS_DIR, data);
+          writeIpcFile(TASKS_DIR, ipcDir, data);
 
           return {
             content: [{
