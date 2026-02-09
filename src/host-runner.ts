@@ -36,6 +36,81 @@ const ALLOWED_ENV_VARS = [
   'ASSISTANT_NAME',
 ];
 
+/**
+ * Detect sandbox-related errors in agent output.
+ * The SDK sandbox uses macOS Seatbelt which produces various error messages.
+ * Match broadly to catch different Seatbelt error formats.
+ */
+function isSandboxViolation(errorText: string): boolean {
+  const patterns = [
+    'sandbox',
+    'seatbelt',
+    'operation not permitted',
+    'not allowed by sandbox',
+    'deny(default)',
+  ];
+  const lower = errorText.toLowerCase();
+  return patterns.some(p => lower.includes(p));
+}
+
+/**
+ * Send a sandbox violation alert to the main group via IPC.
+ * Writes a message file that the IPC poller picks up and delivers via WhatsApp.
+ * Also logs to the violating group's log directory for audit.
+ */
+function sendSandboxAlert(
+  groupName: string,
+  groupFolder: string,
+  errorText: string,
+  securityCtx: HostRunnerSecurityContext,
+): void {
+  // Log to group's log directory for audit trail
+  const logsDir = path.join(GROUPS_DIR, groupFolder, 'logs');
+  fs.mkdirSync(logsDir, { recursive: true });
+  const auditFile = path.join(
+    logsDir,
+    `sandbox-violation-${new Date().toISOString().replace(/[:.]/g, '-')}.log`,
+  );
+  fs.writeFileSync(auditFile, [
+    `=== Sandbox Violation ===`,
+    `Timestamp: ${new Date().toISOString()}`,
+    `Group: ${groupName} (${groupFolder})`,
+    `Error: ${errorText}`,
+  ].join('\n'));
+
+  // Send WhatsApp alert to main group if we have the JID
+  if (securityCtx.mainGroupJid) {
+    const mainIpcMessages = path.join(
+      DATA_DIR, 'ipc', securityCtx.mainGroupFolder, 'messages',
+    );
+    fs.mkdirSync(mainIpcMessages, { recursive: true });
+
+    const alertFilename = `${Date.now()}-sandbox-alert.json`;
+    const alertData = {
+      type: 'message',
+      chatJid: securityCtx.mainGroupJid,
+      text: `[SANDBOX ALERT] Agent in "${groupName}" hit a restriction:\n${errorText.slice(0, 300)}`,
+      groupFolder: securityCtx.mainGroupFolder,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Atomic write: write to temp then rename
+    const tempPath = path.join(mainIpcMessages, `${alertFilename}.tmp`);
+    fs.writeFileSync(tempPath, JSON.stringify(alertData, null, 2));
+    fs.renameSync(tempPath, path.join(mainIpcMessages, alertFilename));
+
+    logger.warn(
+      { group: groupName, alertFile: alertFilename },
+      'Sandbox violation alert sent to main group',
+    );
+  } else {
+    logger.warn(
+      { group: groupName },
+      'Sandbox violation detected but no main group JID available for alert',
+    );
+  }
+}
+
 export async function runHostAgent(
   group: RegisteredGroup,
   input: ContainerInput,
@@ -260,6 +335,15 @@ export async function runHostAgent(
           `Session ID: ${input.sessionId || 'new'}`,
           ``,
         );
+      }
+
+      // Detect sandbox violations (both error and success paths)
+      if (!input.isMain && securityCtx) {
+        const fullError = `${stderr}\n${stdout}`;
+        if (isSandboxViolation(fullError)) {
+          sendSandboxAlert(group.name, group.folder, stderr.slice(-500), securityCtx);
+          logLines.push(``, `=== Sandbox Violation Detected ===`, `Alert sent to main group: ${!!securityCtx.mainGroupJid}`);
+        }
       }
 
       fs.writeFileSync(logFile, logLines.join('\n'));
