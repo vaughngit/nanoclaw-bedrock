@@ -10,7 +10,9 @@ import {
   SCHEDULER_POLL_INTERVAL,
   TIMEZONE,
 } from './config.js';
+import { config } from './config-loader.js';
 import { runContainerAgent, writeTasksSnapshot } from './container-runner.js';
+import { runHostAgent } from './host-runner.js';
 import {
   getAllTasks,
   getDueTasks,
@@ -90,17 +92,25 @@ async function runTask(
     task.context_mode === 'group' ? sessions[task.group_folder] : undefined;
 
   try {
-    const output = await runContainerAgent(
-      group,
-      {
-        prompt: task.prompt,
-        sessionId,
-        groupFolder: task.group_folder,
-        chatJid: task.chat_jid,
-        isMain,
-      },
-      (proc, containerName) => deps.onProcess(task.chat_jid, proc, containerName),
-    );
+    const agentInput = {
+      prompt: task.prompt,
+      sessionId,
+      groupFolder: task.group_folder,
+      chatJid: task.chat_jid,
+      isMain,
+    };
+
+    const output = config.executionMode === 'host'
+      ? await runHostAgent(
+          group,
+          agentInput,
+          (proc, containerName) => deps.onProcess(task.chat_jid, proc, containerName),
+        )
+      : await runContainerAgent(
+          group,
+          agentInput,
+          (proc, containerName) => deps.onProcess(task.chat_jid, proc, containerName),
+        );
 
     if (output.status === 'error') {
       error = output.error || 'Unknown error';

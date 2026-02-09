@@ -11,6 +11,7 @@ import makeWASocket, {
 import { CronExpressionParser } from 'cron-parser';
 
 import './config-loader.js'; // Side-effect: loads + validates nanoclaw.config.jsonc at startup
+import { config } from './config-loader.js';
 import {
   ASSISTANT_NAME,
   DATA_DIR,
@@ -29,6 +30,7 @@ import {
   writeGroupsSnapshot,
   writeTasksSnapshot,
 } from './container-runner.js';
+import { runHostAgent } from './host-runner.js';
 import {
   createTask,
   deleteTask,
@@ -308,17 +310,25 @@ async function runAgent(
   );
 
   try {
-    const output = await runContainerAgent(
-      group,
-      {
-        prompt,
-        sessionId,
-        groupFolder: group.folder,
-        chatJid,
-        isMain,
-      },
-      (proc, containerName) => queue.registerProcess(chatJid, proc, containerName),
-    );
+    const agentInput = {
+      prompt,
+      sessionId,
+      groupFolder: group.folder,
+      chatJid,
+      isMain,
+    };
+
+    const output = config.executionMode === 'host'
+      ? await runHostAgent(
+          group,
+          agentInput,
+          (proc, containerName) => queue.registerProcess(chatJid, proc, containerName),
+        )
+      : await runContainerAgent(
+          group,
+          agentInput,
+          (proc, containerName) => queue.registerProcess(chatJid, proc, containerName),
+        );
 
     if (output.newSessionId) {
       sessions[group.folder] = output.newSessionId;
@@ -989,10 +999,15 @@ function ensureContainerSystemRunning(): void {
 }
 
 async function main(): Promise<void> {
-  ensureContainerSystemRunning();
+  if (config.executionMode === 'container') {
+    ensureContainerSystemRunning();
+  } else {
+    logger.info({ executionMode: config.executionMode }, 'Skipping container system check (non-container mode)');
+  }
   initDatabase();
   logger.info('Database initialized');
   loadState();
+  logger.info({ executionMode: config.executionMode }, 'Execution mode');
 
   // Graceful shutdown handlers
   const shutdown = async (signal: string) => {
