@@ -91,12 +91,12 @@ Plans:
   3. Non-main groups in host mode do not receive `bypassPermissions` -- they use default permission mode or sandbox mode
   4. Tool allow-list is configurable in config, controlling which tools the agent can use in host mode
   5. Sandbox settings are prominently documented in the config template with clear instructions on how to enable, disable, or customize
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
-- [ ] 05-03: TBD
+- [ ] 05-01-PLAN.md -- Config schema extension: hostSecurity Zod schema, ContainerInput security field, config template documentation
+- [ ] 05-02-PLAN.md -- Agent-runner security: conditional sandbox/permissionMode/tools, IPC write validation, permission denial hooks
+- [ ] 05-03-PLAN.md -- Host-runner wiring: pass security config, sandbox violation detection, WhatsApp alerts to main group
 
 ### Phase 6: MCP Server Configuration and Filtering
 **Goal**: MCP servers defined in the config carry mode tags, and the runner only loads servers compatible with the current execution mode
@@ -154,7 +154,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 2. Config Template and Env Expansion | 1/1 | ✓ Complete | 2026-02-07 |
 | 3. Agent-Runner Path Flexibility | 1/1 | ✓ Complete | 2026-02-07 |
 | 4. Runner Abstraction and Host Runner | 2/2 | ✓ Complete | 2026-02-09 |
-| 5. Host Mode Security | 0/3 | Not started | - |
+| 5. Host Mode Security | 0/3 | Planned | - |
 | 6. MCP Server Configuration and Filtering | 0/2 | Not started | - |
 | 7. MCP Inheritance and Health Checks | 0/2 | Not started | - |
 | 8. Per-Group Overrides and Integration | 0/2 | Not started | - |
