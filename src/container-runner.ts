@@ -38,6 +38,12 @@ export interface ContainerInput {
   groupFolder: string;
   chatJid: string;
   isMain: boolean;
+  isScheduledTask?: boolean;
+  /** Security config for host mode agent (undefined = no restrictions, i.e. main group) */
+  security?: {
+    sandbox: boolean;
+    tools?: string[];
+  };
 }
 
 export interface AgentResponse {

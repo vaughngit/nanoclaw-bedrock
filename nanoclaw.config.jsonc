@@ -34,7 +34,7 @@
   //     - Agent has real macOS access -- requires trust
   //     - Sandbox settings (below) provide safety boundaries
   //
-  "executionMode": "container",
+  "executionMode": "host",  //"container"
 
   // ─── MCP Servers ──────────────────────────────────────────────────
   //
@@ -88,35 +88,62 @@
 
   // ─── Host Mode Security ───────────────────────────────────────────
   //
-  // When executionMode is "host", these settings control what agents
-  // can do. Container mode ignores these (containers have their own
-  // isolation).
+  // When executionMode is "host", these settings control what NON-MAIN
+  // group agents can do. The main group is always exempt (unsandboxed,
+  // full tool access, bypassPermissions).
   //
-  // UNCOMMENT when ready (requires Phase 5):
+  // Container mode ignores these entirely (containers have their own
+  // isolation via Linux VMs).
   //
-  // "hostSecurity": {
-  //
-  //   // ── Sandbox ──
-  //   // macOS Seatbelt sandbox restricts file and network access.
-  //   // The Claude Agent SDK's sandbox option controls this.
-  //   //
-  //   //   true (default) - Agent runs in sandbox, limited file access
-  //   //   false          - No sandbox, full macOS access (dangerous!)
-  //   //
-  //   "sandbox": true,
-  //
-  //   // ── Allowed Tools ──
-  //   // Which tools the agent can use in host mode.
-  //   // Default: full Claude Code tool set.
-  //   // Restrict to limit agent capabilities.
-  //   //
-  //   // "allowedTools": [
-  //   //   "Bash", "Read", "Write", "Edit", "Glob", "Grep",
-  //   //   "WebSearch", "WebFetch",
-  //   //   "mcp__nanoclaw__*"
-  //   // ]
-  //
-  // },
+  "hostSecurity": {
+
+    // ── Sandbox ──
+    // macOS Seatbelt sandbox restricts Bash tool filesystem/network access
+    // for non-main groups. Powered by the Claude Agent SDK's sandbox option.
+    //
+    //   true  (default) - Bash commands run in Seatbelt sandbox
+    //   false           - No sandbox, full macOS access (use with caution)
+    //
+    // The sandbox only affects the Bash tool. Read/Write/Edit/Glob/Grep
+    // are controlled by the SDK's permission mode (non-main groups use
+    // 'default' mode, which prompts before destructive operations).
+    //
+    // To disable sandbox for a specific group, use per-group overrides
+    // in registered_groups.json (Phase 8).
+    //
+    "sandbox": true
+
+    // ── Tool Allowlist ──
+    // Positive allowlist of tools available to non-main group agents.
+    // Maps directly to the SDK's `tools` query option (restricts availability).
+    // NOT the same as the SDK's `allowedTools` (which only controls auto-approval).
+    //
+    // When omitted or commented out: full Claude Code tool set (no restriction).
+    // When present: ONLY these tools are available to the agent.
+    //
+    // NanoClaw MCP tools (mcp__nanoclaw__*) are ALWAYS injected regardless
+    // of this setting -- they're needed for IPC communication.
+    //
+    // WARNING: An empty array [] is rejected by config validation (min 1).
+    // The minimum useful set is ["Read", "Grep"].
+    //
+    // Available tools:
+    //   "Bash"       - Execute shell commands (sandboxed if sandbox: true)
+    //   "Read"       - Read file contents
+    //   "Write"      - Create/overwrite files
+    //   "Edit"       - Edit existing files (find & replace)
+    //   "Glob"       - Find files by pattern
+    //   "Grep"       - Search file contents
+    //   "WebSearch"  - Search the web
+    //   "WebFetch"   - Fetch URL content
+    //
+    // UNCOMMENT to restrict tools (default: all tools available):
+    // "tools": [
+    //   "Bash", "Read", "Write", "Edit", "Glob", "Grep",
+    //   "WebSearch", "WebFetch"
+    // ]
+
+  },
 
   // ─── Per-Group Overrides ──────────────────────────────────────────
   //
