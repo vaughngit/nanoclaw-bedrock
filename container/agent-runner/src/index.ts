@@ -41,6 +41,10 @@ interface ContainerInput {
   chatJid: string;
   isMain: boolean;
   isScheduledTask?: boolean;
+  security?: {
+    sandbox: boolean;
+    tools?: string[];
+  };
 }
 
 interface AgentResponse {
@@ -248,6 +252,17 @@ function formatTranscriptMarkdown(messages: ParsedMessage[], title?: string | nu
   return lines.join('\n');
 }
 
+function createPermissionDenialHook(): HookCallback {
+  return async (_input, _toolUseId, _context) => {
+    return {
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse' as const,
+        additionalContext: 'If any tool use is denied due to permissions or sandbox restrictions, use the mcp__nanoclaw__send_message tool to explain to the group what you cannot do and why. Suggest they contact the admin group for assistance. Do not silently fail.',
+      }
+    };
+  };
+}
+
 async function main(): Promise<void> {
   let input: ContainerInput;
 
@@ -290,28 +305,72 @@ async function main(): Promise<void> {
   // Ensure group directory exists (host mode: may not exist on first run)
   fs.mkdirSync(GROUP_DIR, { recursive: true });
 
+  const securityConfig = input.security;
+  const isMain = input.isMain;
+
+  if (!isMain && securityConfig) {
+    log(`Security config: sandbox=${securityConfig.sandbox}, tools=${securityConfig.tools ? securityConfig.tools.join(',') : 'all'}`);
+  }
+  if (!isMain) {
+    log(`Permission mode: default (non-main group)`);
+  }
+
+  // Setting sources: non-main groups use 'project' only to prevent shared ~/.claude permission leaks
+  // (settings written by one group's session would leak to others via shared user config)
   const settingSources: ('project' | 'user')[] =
-    NANOCLAW_MODE === 'host' ? ['project', 'user'] : ['project'];
+    isMain ? ['project', 'user'] : ['project'];
+
+  // Build tool list for non-main groups
+  // NanoClaw MCP tools always included (needed for IPC communication)
+  const nonMainTools = securityConfig?.tools
+    ? [...securityConfig.tools, 'mcp__nanoclaw__*']
+    : [
+        'Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep',
+        'WebSearch', 'WebFetch',
+        'mcp__nanoclaw__*'
+      ];
 
   const queryOptions = {
     cwd: GROUP_DIR,
     systemPrompt: globalClaudeMd
       ? { type: 'preset' as const, preset: 'claude_code' as const, append: globalClaudeMd }
       : undefined,
-    allowedTools: [
-      'Bash',
-      'Read', 'Write', 'Edit', 'Glob', 'Grep',
-      'WebSearch', 'WebFetch',
-      'mcp__nanoclaw__*'
-    ],
-    permissionMode: 'bypassPermissions' as const,
-    allowDangerouslySkipPermissions: true,
+
+    // TOOLS: main gets all tools (no `tools` or `allowedTools` needed -- bypassPermissions
+    // already auto-approves everything, and omitting `tools` means full SDK default tool set).
+    // Non-main gets `tools` (positive allowlist) restricting which tools are AVAILABLE.
+    ...(!isMain
+      ? { tools: nonMainTools }
+      : {}),
+
+    // PERMISSION MODE: main bypasses all, non-main uses default (prompts for destructive ops)
+    permissionMode: isMain ? 'bypassPermissions' as const : 'default' as const,
+    allowDangerouslySkipPermissions: isMain,
+
+    // SANDBOX: main exempt, non-main sandboxed when configured
+    // sandbox only affects Bash tool (wraps in macOS Seatbelt)
+    // allowUnsandboxedCommands: false prevents model from escaping with dangerouslyDisableSandbox
+    ...(!isMain && NANOCLAW_MODE === 'host' && securityConfig?.sandbox !== false
+      ? {
+          sandbox: {
+            enabled: true,
+            autoAllowBashIfSandboxed: true,
+            allowUnsandboxedCommands: false,
+          },
+        }
+      : {}),
+
     settingSources,
     mcpServers: {
       nanoclaw: ipcMcp
     },
     hooks: {
-      PreCompact: [{ hooks: [createPreCompactHook()] }]
+      PreCompact: [{ hooks: [createPreCompactHook()] }],
+      // Non-main groups get a PreToolUse hook that instructs the model
+      // to explain permission denials to the group chat
+      ...(!isMain ? {
+        PreToolUse: [{ hooks: [createPermissionDenialHook()] }],
+      } : {}),
     },
     outputFormat: {
       type: 'json_schema' as const,
