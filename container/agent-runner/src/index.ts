@@ -293,37 +293,39 @@ async function main(): Promise<void> {
   const settingSources: ('project' | 'user')[] =
     NANOCLAW_MODE === 'host' ? ['project', 'user'] : ['project'];
 
-  try {
+  const queryOptions = {
+    cwd: GROUP_DIR,
+    systemPrompt: globalClaudeMd
+      ? { type: 'preset' as const, preset: 'claude_code' as const, append: globalClaudeMd }
+      : undefined,
+    allowedTools: [
+      'Bash',
+      'Read', 'Write', 'Edit', 'Glob', 'Grep',
+      'WebSearch', 'WebFetch',
+      'mcp__nanoclaw__*'
+    ],
+    permissionMode: 'bypassPermissions' as const,
+    allowDangerouslySkipPermissions: true,
+    settingSources,
+    mcpServers: {
+      nanoclaw: ipcMcp
+    },
+    hooks: {
+      PreCompact: [{ hooks: [createPreCompactHook()] }]
+    },
+    outputFormat: {
+      type: 'json_schema' as const,
+      schema: AGENT_RESPONSE_SCHEMA,
+    }
+  };
+
+  async function runQuery(sessionId: string | undefined): Promise<void> {
     log('Starting agent...');
+    if (sessionId) log(`Resuming session: ${sessionId}`);
 
     for await (const message of query({
       prompt,
-      options: {
-        cwd: GROUP_DIR,
-        resume: input.sessionId,
-        systemPrompt: globalClaudeMd
-          ? { type: 'preset' as const, preset: 'claude_code' as const, append: globalClaudeMd }
-          : undefined,
-        allowedTools: [
-          'Bash',
-          'Read', 'Write', 'Edit', 'Glob', 'Grep',
-          'WebSearch', 'WebFetch',
-          'mcp__nanoclaw__*'
-        ],
-        permissionMode: 'bypassPermissions',
-        allowDangerouslySkipPermissions: true,
-        settingSources,
-        mcpServers: {
-          nanoclaw: ipcMcp
-        },
-        hooks: {
-          PreCompact: [{ hooks: [createPreCompactHook()] }]
-        },
-        outputFormat: {
-          type: 'json_schema',
-          schema: AGENT_RESPONSE_SCHEMA,
-        }
-      }
+      options: { ...queryOptions, resume: sessionId }
     })) {
       if (message.type === 'system' && message.subtype === 'init') {
         newSessionId = message.session_id;
@@ -348,6 +350,10 @@ async function main(): Promise<void> {
         }
       }
     }
+  }
+
+  try {
+    await runQuery(input.sessionId);
 
     log('Agent completed successfully');
     writeOutput({
@@ -358,6 +364,33 @@ async function main(): Promise<void> {
 
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
+
+    // If resume failed, retry without session (handles cross-mode session incompatibility)
+    if (input.sessionId) {
+      log(`Agent failed with session resume, retrying without session: ${errorMessage}`);
+      try {
+        await runQuery(undefined);
+
+        log('Agent completed successfully (after session retry)');
+        writeOutput({
+          status: 'success',
+          result: result ?? { outputType: 'log' },
+          newSessionId
+        });
+        return;
+      } catch (retryErr) {
+        const retryMessage = retryErr instanceof Error ? retryErr.message : String(retryErr);
+        log(`Agent error (retry): ${retryMessage}`);
+        writeOutput({
+          status: 'error',
+          result: null,
+          newSessionId,
+          error: retryMessage
+        });
+        process.exit(1);
+      }
+    }
+
     log(`Agent error: ${errorMessage}`);
     writeOutput({
       status: 'error',
