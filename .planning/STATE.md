@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 4 in progress, plan 01 complete
+**Current focus:** Phase 4 complete, ready for Phase 5
 
 ## Current Position
 
-Phase: 4 of 8 (Runner Abstraction and Host Runner)
-Plan: 1 of 2 in current phase
-Status: In progress
-Last activity: 2026-02-08 -- Completed 04-01-PLAN.md (host runner module)
+Phase: 4 of 8 (Runner Abstraction and Host Runner) -- COMPLETE
+Next: Phase 5 (Host Mode Security)
+Status: Phase 4 verified, ready for Phase 5
+Last activity: 2026-02-09 -- Completed Phase 4 (all plans verified)
 
-Progress: [█████░░░░░░░░░░░] ~33%
+Progress: [████████░░░░░░░░] ~50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 4.4 min
-- Total execution time: 22 min
+- Total plans completed: 6
+- Average duration: 11.5 min
+- Total execution time: 69 min
 
 **By Phase:**
 
@@ -30,11 +30,11 @@ Progress: [█████░░░░░░░░░░░] ~33%
 | 01-config-loader | 2/2 | 13 min | 6.5 min |
 | 02-config-template-and-env-expansion | 1/1 | 3 min | 3 min |
 | 03-agent-runner-path-flexibility | 1/1 | 3 min | 3 min |
-| 04-runner-abstraction-and-host-runner | 1/2 | 3 min | 3 min |
+| 04-runner-abstraction-and-host-runner | 2/2 | 48 min | 24 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (10 min), 02-01 (3 min), 03-01 (3 min), 04-01 (3 min)
-- Trend: Consistent 3 min for straightforward module/config plans
+- Last 5 plans: 02-01 (3 min), 03-01 (3 min), 04-01 (3 min), 04-02 (~45 min)
+- Note: 04-02 included human checkpoint, WhatsApp debugging, and session resume fix
 
 *Updated after each plan completion*
 
@@ -65,6 +65,9 @@ Recent decisions affecting current work:
 - [04-01]: Allowlist-based env var filtering for subprocess security (not full process.env passthrough)
 - [04-01]: Shared ~/.claude via CLAUDE_CONFIG_DIR in host mode (not per-group isolation like container mode)
 - [04-01]: No stdout/stderr size limits in host mode (higher trust than container mode)
+- [04-02]: Ternary inline routing (not strategy pattern) for two execution modes
+- [04-02]: Retry agent without session on resume failure (cross-mode session incompatibility)
+- [04-02]: Startup logs execution mode immediately after loadState() for debugging visibility
 
 ### Pending Todos
 
@@ -75,10 +78,10 @@ None.
 - Phase 5 (Host Mode Security): sandbox-runtime integration needs deep research before implementation -- flagged by research summary as MEDIUM confidence area
 - Phase 7 (MCP Health Checks): Agent SDK mcpServerStatus() API existence unverified -- may need alternative approach
 - ESM pattern note: Any future module-level singletons that log at import time must use process.stderr.write, not pino logger (async transport timing issue)
-- Roadmap note: Success criteria references CLAUDE_HOME but correct env var is CLAUDE_CONFIG_DIR (SDK variable). Phase 4 sets CLAUDE_CONFIG_DIR, not CLAUDE_HOME. (Resolved in 04-01)
+- Cross-mode sessions: Container-mode session IDs don't have transcript files on host filesystem. Agent-runner now retries without session, but database still stores stale session IDs until overwritten by new sessions.
 
 ## Session Continuity
 
-Last session: 2026-02-09T01:36:03Z
-Stopped at: Completed 04-01-PLAN.md. Phase 4 plan 1 of 2 done. Ready for 04-02 (runner abstraction and routing).
+Last session: 2026-02-09T02:30:00Z
+Stopped at: Phase 4 complete and verified. Ready for Phase 5 (Host Mode Security).
 Resume file: None

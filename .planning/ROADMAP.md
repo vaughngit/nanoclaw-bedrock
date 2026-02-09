@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Config Loader** - Parse JSONC config, validate with Zod, merge defaults, export typed config
 - [x] **Phase 2: Config Template and Env Expansion** - Ship self-documenting config file with environment variable support
 - [x] **Phase 3: Agent-Runner Path Flexibility** - Make agent-runner path-configurable via env vars for dual-mode reuse
-- [ ] **Phase 4: Runner Abstraction and Host Runner** - Spawn agents directly on macOS as subprocesses using shared runner interface
+- [x] **Phase 4: Runner Abstraction and Host Runner** - Spawn agents directly on macOS as subprocesses using shared runner interface
 - [ ] **Phase 5: Host Mode Security** - Enforce macOS Seatbelt sandbox, IPC authorization, and permission boundaries in host mode
 - [ ] **Phase 6: MCP Server Configuration and Filtering** - Mode-tagged MCP servers with intelligent filtering at agent startup
 - [ ] **Phase 7: MCP Inheritance and Health Checks** - Host mode inherits global MCP servers, startup health reporting for all servers
@@ -78,8 +78,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Host runner module: build:agent script, GroupQueue type fix, src/host-runner.ts with runHostAgent()
-- [ ] 04-02-PLAN.md -- Wire mode routing: index.ts and task-scheduler.ts route to correct runner, conditional container check, end-to-end verification
+- [x] 04-01-PLAN.md -- Host runner module: build:agent script, GroupQueue type fix, src/host-runner.ts with runHostAgent()
+- [x] 04-02-PLAN.md -- Wire mode routing: index.ts and task-scheduler.ts route to correct runner, conditional container check, end-to-end verification
 
 ### Phase 5: Host Mode Security
 **Goal**: Host mode agents run within macOS Seatbelt sandbox boundaries, with IPC authorization preventing cross-group access and permission controls matching the safety properties that containers provided
@@ -153,7 +153,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Config Loader | 2/2 | ✓ Complete | 2026-02-07 |
 | 2. Config Template and Env Expansion | 1/1 | ✓ Complete | 2026-02-07 |
 | 3. Agent-Runner Path Flexibility | 1/1 | ✓ Complete | 2026-02-07 |
-| 4. Runner Abstraction and Host Runner | 0/2 | Planned | - |
+| 4. Runner Abstraction and Host Runner | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. Host Mode Security | 0/3 | Not started | - |
 | 6. MCP Server Configuration and Filtering | 0/2 | Not started | - |
 | 7. MCP Inheritance and Health Checks | 0/2 | Not started | - |
