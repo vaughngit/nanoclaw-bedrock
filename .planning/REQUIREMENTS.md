@@ -22,8 +22,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **EXEC-03**: Host runner spawns `claude` (agent-runner) directly on macOS as a subprocess instead of inside a container
 - [x] **EXEC-04**: Host runner reuses the existing agent-runner code with path-configurable env vars (not a separate implementation)
 - [x] **EXEC-05**: Container runner continues working unchanged when `executionMode` is `"container"`
-- [ ] **EXEC-06**: Config exposes macOS Seatbelt sandbox settings for host mode via the Agent SDK's `sandbox` option, with clear documentation on how to enable/disable/customize
-- [ ] **EXEC-07**: Sandbox settings are prominently documented in the config template so users can easily unlock or tighten restrictions
+- [x] **EXEC-06**: Config exposes macOS Seatbelt sandbox settings for host mode via the Agent SDK's `sandbox` option, with clear documentation on how to enable/disable/customize
+- [x] **EXEC-07**: Sandbox settings are prominently documented in the config template so users can easily unlock or tighten restrictions
 
 ### MCP Servers
 
@@ -42,9 +42,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Host Mode Security
 
-- [ ] **SEC-01**: Host mode tool allow-list configurable in config, controlling which tools the agent can use (defaults to full Claude Code tool set)
-- [ ] **SEC-02**: IPC authorization works correctly in host mode (agents can only write to their own group's IPC directory)
-- [ ] **SEC-03**: Non-main groups in host mode do not receive `bypassPermissions` — they use default permission mode or sandbox mode
+- [x] **SEC-01**: Host mode tool allow-list configurable in config, controlling which tools the agent can use (defaults to full Claude Code tool set)
+- [x] **SEC-02**: IPC authorization works correctly in host mode (agents can only write to their own group's IPC directory)
+- [x] **SEC-03**: Non-main groups in host mode do not receive `bypassPermissions` — they use default permission mode or sandbox mode
 
 ## v2 Requirements
 
@@ -84,8 +84,8 @@ Deferred to future release. Tracked but not in current roadmap.
 | EXEC-03 | Phase 4 | Complete |
 | EXEC-04 | Phase 3 | Complete |
 | EXEC-05 | Phase 3 | Complete |
-| EXEC-06 | Phase 5 | Pending |
-| EXEC-07 | Phase 5 | Pending |
+| EXEC-06 | Phase 5 | Complete |
+| EXEC-07 | Phase 5 | Complete |
 | MCP-01 | Phase 6 | Pending |
 | MCP-02 | Phase 6 | Pending |
 | MCP-03 | Phase 6 | Pending |
@@ -95,9 +95,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | GRP-01 | Phase 8 | Pending |
 | GRP-02 | Phase 8 | Pending |
 | GRP-03 | Phase 8 | Pending |
-| SEC-01 | Phase 5 | Pending |
-| SEC-02 | Phase 5 | Pending |
-| SEC-03 | Phase 5 | Pending |
+| SEC-01 | Phase 5 | Complete |
+| SEC-02 | Phase 5 | Complete |
+| SEC-03 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 24 total
@@ -106,4 +106,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-09 after Phase 4 completion*
+*Last updated: 2026-02-08 after Phase 5 completion*
