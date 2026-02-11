@@ -44,6 +44,8 @@ export interface ContainerInput {
     sandbox: boolean;
     tools?: string[];
   };
+  /** Pre-filtered MCP servers (mode-compatible only). Merged with IPC MCP by agent-runner. */
+  mcpServers?: Record<string, Record<string, unknown>>;
 }
 
 export interface AgentResponse {

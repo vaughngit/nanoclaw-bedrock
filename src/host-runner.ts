@@ -12,7 +12,7 @@ import {
   DATA_DIR,
   GROUPS_DIR,
 } from './config.js';
-import { HostSecurityConfig } from './config-loader.js';
+import { config, HostSecurityConfig } from './config-loader.js';
 import { ContainerInput, ContainerOutput } from './container-runner.js';
 import { logger } from './logger.js';
 import { RegisteredGroup } from './types.js';
@@ -191,6 +191,11 @@ export async function runHostAgent(
       },
       'Host agent security config applied',
     );
+  }
+
+  // Pass configured MCP servers (agent-runner will filter by mode and translate to SDK format)
+  if (config.mcpServers && Object.keys(config.mcpServers).length > 0) {
+    input.mcpServers = config.mcpServers as Record<string, Record<string, unknown>>;
   }
 
   logger.info(
