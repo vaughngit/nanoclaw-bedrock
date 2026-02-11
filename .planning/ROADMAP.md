@@ -107,11 +107,11 @@ Plans:
   2. Servers without a `modes` field default to being available in both modes
   3. Agent startup only loads MCP servers whose `modes` include the current execution mode
   4. Startup logs list which MCP servers are active and which were filtered out due to mode incompatibility
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md -- Schema and filter module: McpServerSchema in config-loader, mcp-filter.ts with mode filtering and SDK translation, config template with real examples
+- [ ] 06-02-PLAN.md -- Pipeline wiring: ContainerInput mcpServers field, host-runner passes config servers, agent-runner filters and merges with IPC MCP, startup logging
 
 ### Phase 7: MCP Inheritance and Health Checks
 **Goal**: Host mode agents inherit the user's full MCP ecosystem from global settings, and startup reports the health of all configured servers
