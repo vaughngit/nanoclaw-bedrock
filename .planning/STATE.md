@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 5 complete -- security pipeline fully wired end-to-end. Ready for Phase 6 (MCP Proxy).
+**Current focus:** Phase 6 in progress -- MCP server configuration and filtering.
 
 ## Current Position
 
-Phase: 5 of 8 (Host Mode Security) -- COMPLETE
-Next: Phase 6 (MCP Server Configuration and Filtering)
-Status: Phase 5 verified (19/19 must-haves), ready for Phase 6
-Last activity: 2026-02-08 -- Completed Phase 5 (all plans verified)
+Phase: 6 of 8 (MCP Server Configuration and Filtering)
+Plan: 1 of 2 in phase
+Status: In progress
+Last activity: 2026-02-11 -- Completed 06-01-PLAN.md
 
-Progress: [██████████░░░░░░] ~69%
+Progress: [██████████░░░░░░] ~73%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 8.8 min
-- Total execution time: 79 min
+- Total plans completed: 10
+- Average duration: 8.3 min
+- Total execution time: 83 min
 
 **By Phase:**
 
@@ -32,10 +32,11 @@ Progress: [██████████░░░░░░] ~69%
 | 03-agent-runner-path-flexibility | 1/1 | 3 min | 3 min |
 | 04-runner-abstraction-and-host-runner | 2/2 | 48 min | 24 min |
 | 05-host-mode-security | 3/3 | 10 min | 3.3 min |
+| 06-mcp-server-configuration-and-filtering | 1/2 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 04-02 (~45 min), 05-01 (3 min), 05-02 (4 min), 05-03 (3 min)
-- Note: 04-02 included human checkpoint, WhatsApp debugging, and session resume fix
+- Last 5 plans: 05-01 (3 min), 05-02 (4 min), 05-03 (3 min), 06-01 (4 min)
+- Consistent ~3-4 min for focused schema/module plans
 
 *Updated after each plan completion*
 
@@ -82,6 +83,9 @@ Recent decisions affecting current work:
 - [05-03]: Broad Seatbelt pattern matching -- 5 patterns cover known macOS sandbox error formats
 - [05-03]: Sandbox alerts via IPC -- reuses existing IPC poller for WhatsApp delivery to main group
 - [05-03]: Atomic write for alerts -- temp file + rename prevents partial reads by IPC poller
+- [06-01]: superRefine over refine for dynamic error messages (Zod 4 .refine() only takes static params)
+- [06-01]: Local NanoClawMcpServer interface in mcp-filter.ts (agent-runner is separate build target)
+- [06-01]: Reserved name "nanoclaw" logged and skipped (not in active or filtered sets)
 
 ### Pending Todos
 
@@ -95,6 +99,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-09T04:39:04Z
-Stopped at: Completed 05-03-PLAN.md. Phase 5 complete. Ready for Phase 6.
+Last session: 2026-02-11T04:50:19Z
+Stopped at: Completed 06-01-PLAN.md. Plan 02 wires MCP servers into runner pipeline.
 Resume file: None
