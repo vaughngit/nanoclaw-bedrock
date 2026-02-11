@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 6 in progress -- MCP server configuration and filtering.
+**Current focus:** Phase 6 complete. Ready for Phase 7 (MCP Health Checks).
 
 ## Current Position
 
 Phase: 6 of 8 (MCP Server Configuration and Filtering)
-Plan: 1 of 2 in phase
-Status: In progress
-Last activity: 2026-02-11 -- Completed 06-01-PLAN.md
+Plan: 2 of 2 in phase
+Status: Phase complete
+Last activity: 2026-02-11 -- Completed 06-02-PLAN.md
 
-Progress: [██████████░░░░░░] ~73%
+Progress: [████████████░░░░] ~80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10
-- Average duration: 8.3 min
-- Total execution time: 83 min
+- Total plans completed: 11
+- Average duration: 7.7 min
+- Total execution time: 85 min
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [██████████░░░░░░] ~73%
 | 03-agent-runner-path-flexibility | 1/1 | 3 min | 3 min |
 | 04-runner-abstraction-and-host-runner | 2/2 | 48 min | 24 min |
 | 05-host-mode-security | 3/3 | 10 min | 3.3 min |
-| 06-mcp-server-configuration-and-filtering | 1/2 | 4 min | 4 min |
+| 06-mcp-server-configuration-and-filtering | 2/2 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01 (3 min), 05-02 (4 min), 05-03 (3 min), 06-01 (4 min)
-- Consistent ~3-4 min for focused schema/module plans
+- Last 5 plans: 05-02 (4 min), 05-03 (3 min), 06-01 (4 min), 06-02 (2 min)
+- Consistent ~2-4 min for focused pipeline/wiring plans
 
 *Updated after each plan completion*
 
@@ -86,6 +86,9 @@ Recent decisions affecting current work:
 - [06-01]: superRefine over refine for dynamic error messages (Zod 4 .refine() only takes static params)
 - [06-01]: Local NanoClawMcpServer interface in mcp-filter.ts (agent-runner is separate build target)
 - [06-01]: Reserved name "nanoclaw" logged and skipped (not in active or filtered sets)
+- [06-02]: Filter in agent-runner not host-runner: single filter point, no cross-build-target imports
+- [06-02]: IPC MCP listed first in spread operator: defense-in-depth against config override of "nanoclaw"
+- [06-02]: No tools allowlist changes: non-main MCP access controlled by admin hostSecurity.tools config
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-11T04:50:19Z
-Stopped at: Completed 06-01-PLAN.md. Plan 02 wires MCP servers into runner pipeline.
+Last session: 2026-02-11T04:55:06Z
+Stopped at: Completed 06-02-PLAN.md. Phase 6 complete. Next: Phase 7 (MCP Health Checks).
 Resume file: None
