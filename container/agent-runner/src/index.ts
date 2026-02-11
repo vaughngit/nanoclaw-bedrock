@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { query, HookCallback, PreCompactHookInput } from '@anthropic-ai/claude-agent-sdk';
 import { createIpcMcp } from './ipc-mcp.js';
+import { filterMcpServersByMode, NanoClawMcpServer } from './mcp-filter.js';
 
 function log(message: string): void {
   console.error(`[agent-runner] ${message}`);
@@ -45,6 +46,7 @@ interface ContainerInput {
     sandbox: boolean;
     tools?: string[];
   };
+  mcpServers?: Record<string, NanoClawMcpServer>;
 }
 
 interface AgentResponse {
@@ -315,6 +317,26 @@ async function main(): Promise<void> {
     log(`Permission mode: default (non-main group)`);
   }
 
+  // Filter MCP servers by current execution mode
+  let configMcpServers: Record<string, any> = {};
+  if (input.mcpServers && Object.keys(input.mcpServers).length > 0) {
+    const { active, filtered } = filterMcpServersByMode(input.mcpServers, NANOCLAW_MODE);
+    configMcpServers = active;
+
+    // Startup logging: show what's active and what's filtered
+    const activeNames = Object.keys(active);
+    if (activeNames.length > 0) {
+      log(`MCP servers active (${NANOCLAW_MODE} mode): ${activeNames.join(', ')}`);
+    }
+    if (filtered.length > 0) {
+      for (const f of filtered) {
+        log(`MCP server filtered out: "${f.name}" (modes: [${f.modes.join(', ')}], current: ${NANOCLAW_MODE})`);
+      }
+    }
+  } else {
+    log('No additional MCP servers configured');
+  }
+
   // Setting sources: non-main groups use 'project' only to prevent shared ~/.claude permission leaks
   // (settings written by one group's session would leak to others via shared user config)
   const settingSources: ('project' | 'user')[] =
@@ -362,7 +384,8 @@ async function main(): Promise<void> {
 
     settingSources,
     mcpServers: {
-      nanoclaw: ipcMcp
+      nanoclaw: ipcMcp,          // Always injected (IPC communication)
+      ...configMcpServers,       // Config servers (pre-filtered by mode)
     },
     hooks: {
       PreCompact: [{ hooks: [createPreCompactHook()] }],
