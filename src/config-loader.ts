@@ -26,13 +26,47 @@ const HostSecuritySchema = z.strictObject({
   tools: z.array(z.string()).min(1).optional(),
 });
 
+const McpServerSchema = z.strictObject({
+  // stdio server fields
+  command: z.string().optional(),
+  args: z.array(z.string()).optional(),
+  env: z.record(z.string(), z.string()).optional(),
+
+  // network server fields (SSE/HTTP)
+  type: z.enum(['stdio', 'sse', 'http']).optional(),
+  url: z.string().optional(),
+  headers: z.record(z.string(), z.string()).optional(),
+
+  // NanoClaw metadata
+  modes: z.array(z.string()).default(['host', 'container']),
+}).superRefine((server, ctx) => {
+  if (server.type === 'sse' || server.type === 'http') {
+    if (!server.url) {
+      ctx.addIssue({ code: 'custom', message: `${server.type} server must have "url"` });
+    }
+    if (server.command) {
+      ctx.addIssue({ code: 'custom', message: `${server.type} server must NOT have "command"` });
+    }
+  } else {
+    // stdio (explicit or default when type is omitted)
+    if (!server.command) {
+      ctx.addIssue({ code: 'custom', message: 'stdio server must have "command"' });
+    }
+    if (server.url) {
+      ctx.addIssue({ code: 'custom', message: 'stdio server must NOT have "url"' });
+    }
+  }
+});
+
 const NanoClawConfigSchema = z.strictObject({
   executionMode: z.enum(['container', 'host']).default('container'),
   hostSecurity: HostSecuritySchema.optional(),
+  mcpServers: z.record(z.string(), McpServerSchema).optional().default({}),
 });
 
 export type NanoClawConfig = z.output<typeof NanoClawConfigSchema>;
 export type HostSecurityConfig = z.output<typeof HostSecuritySchema>;
+export type NanoClawMcpServer = z.output<typeof McpServerSchema>;
 
 /**
  * Format Zod validation issues into human-readable lines for error banner.
@@ -235,7 +269,7 @@ function loadAndValidateConfig(): NanoClawConfig {
   }
 
   const config = Object.freeze(result.data);
-  process.stderr.write(`[config] Config loaded: executionMode=${config.executionMode}${config.hostSecurity ? `, sandbox=${config.hostSecurity.sandbox}` : ''}\n`);
+  process.stderr.write(`[config] Config loaded: executionMode=${config.executionMode}${config.hostSecurity ? `, sandbox=${config.hostSecurity.sandbox}` : ''}${Object.keys(config.mcpServers).length > 0 ? `, mcpServers=${Object.keys(config.mcpServers).length}` : ''}\n`);
   return config;
 }
 

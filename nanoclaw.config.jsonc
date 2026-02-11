@@ -47,44 +47,42 @@
   //   - Optional "modes" array to restrict to specific execution modes
   //
   // If "modes" is omitted, the server is available in both modes.
+  // The name "nanoclaw" is reserved for IPC -- do not use it here.
   //
   // Environment variables in args and env are expanded at startup:
   //   "${GITHUB_TOKEN}" -> value of GITHUB_TOKEN from .env
   //   "${HOME}/projects" -> /Users/you/projects
   //   "${API_KEY:-sk-placeholder}" -> API_KEY value or "sk-placeholder"
   //
-  // UNCOMMENT when ready (requires Phase 6):
-  //
-  // "mcpServers": {
-  //
-  //   // ── stdio server (local process) ──
-  //   "github": {
-  //     "command": "npx",
-  //     "args": ["-y", "@modelcontextprotocol/server-github"],
-  //     "env": {
-  //       "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-  //     },
-  //     "modes": ["host"]
-  //   },
-  //
-  //   // ── stdio server with path expansion ──
-  //   "filesystem": {
-  //     "command": "npx",
-  //     "args": ["-y", "@modelcontextprotocol/server-filesystem", "${HOME}/projects"],
-  //     "modes": ["host", "container"]
-  //   },
-  //
-  //   // ── HTTP/SSE remote server ──
-  //   "remote-api": {
-  //     "type": "sse",
-  //     "url": "https://api.example.com/mcp/sse",
-  //     "headers": {
-  //       "Authorization": "Bearer ${API_TOKEN}"
-  //     },
-  //     "modes": ["host"]
-  //   }
-  //
-  // },
+  "mcpServers": {
+
+    // ── Context7: Library documentation lookup ──
+    // Provides resolve_library_id and get_library_docs tools
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "modes": ["host"]
+    }
+
+    // ── Filesystem: File access for agents ──
+    // Uncomment and adjust the path to your projects directory
+    // "filesystem": {
+    //   "command": "npx",
+    //   "args": ["-y", "@modelcontextprotocol/server-filesystem", "${HOME}/projects"],
+    //   "modes": ["host"]
+    // },
+
+    // ── HTTP/SSE remote server example ──
+    // "remote-api": {
+    //   "type": "sse",
+    //   "url": "https://api.example.com/mcp/sse",
+    //   "headers": {
+    //     "Authorization": "Bearer ${API_TOKEN}"
+    //   },
+    //   "modes": ["host"]
+    // }
+
+  },
 
   // ─── Host Mode Security ───────────────────────────────────────────
   //
