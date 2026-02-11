@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Agent-Runner Path Flexibility** - Make agent-runner path-configurable via env vars for dual-mode reuse
 - [x] **Phase 4: Runner Abstraction and Host Runner** - Spawn agents directly on macOS as subprocesses using shared runner interface
 - [x] **Phase 5: Host Mode Security** - Enforce macOS Seatbelt sandbox, IPC authorization, and permission boundaries in host mode
-- [ ] **Phase 6: MCP Server Configuration and Filtering** - Mode-tagged MCP servers with intelligent filtering at agent startup
+- [x] **Phase 6: MCP Server Configuration and Filtering** - Mode-tagged MCP servers with intelligent filtering at agent startup
 - [ ] **Phase 7: MCP Inheritance and Health Checks** - Host mode inherits global MCP servers, startup health reporting for all servers
 - [ ] **Phase 8: Per-Group Overrides and Integration** - Per-group execution mode, startup banners, end-to-end verification
 
@@ -110,8 +110,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md -- Schema and filter module: McpServerSchema in config-loader, mcp-filter.ts with mode filtering and SDK translation, config template with real examples
-- [ ] 06-02-PLAN.md -- Pipeline wiring: ContainerInput mcpServers field, host-runner passes config servers, agent-runner filters and merges with IPC MCP, startup logging
+- [x] 06-01-PLAN.md -- Schema and filter module: McpServerSchema in config-loader, mcp-filter.ts with mode filtering and SDK translation, config template with real examples
+- [x] 06-02-PLAN.md -- Pipeline wiring: ContainerInput mcpServers field, host-runner passes config servers, agent-runner filters and merges with IPC MCP, startup logging
 
 ### Phase 7: MCP Inheritance and Health Checks
 **Goal**: Host mode agents inherit the user's full MCP ecosystem from global settings, and startup reports the health of all configured servers
@@ -155,6 +155,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 3. Agent-Runner Path Flexibility | 1/1 | ✓ Complete | 2026-02-07 |
 | 4. Runner Abstraction and Host Runner | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. Host Mode Security | 3/3 | ✓ Complete | 2026-02-08 |
-| 6. MCP Server Configuration and Filtering | 0/2 | Not started | - |
+| 6. MCP Server Configuration and Filtering | 2/2 | ✓ Complete | 2026-02-10 |
 | 7. MCP Inheritance and Health Checks | 0/2 | Not started | - |
 | 8. Per-Group Overrides and Integration | 0/2 | Not started | - |
