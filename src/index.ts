@@ -11,7 +11,7 @@ import makeWASocket, {
 import { CronExpressionParser } from 'cron-parser';
 
 import './config-loader.js'; // Side-effect: loads + validates nanoclaw.config.jsonc at startup
-import { config } from './config-loader.js';
+import { config, resolveExecutionMode } from './config-loader.js';
 import {
   ASSISTANT_NAME,
   DATA_DIR,
@@ -263,7 +263,9 @@ async function processGroupMessages(chatJid: string): Promise<boolean> {
   saveState();
 
   if (response.outputType === 'message' && response.userMessage) {
-    await sendMessage(chatJid, `${ASSISTANT_NAME}: ${response.userMessage}`);
+    const mode = resolveExecutionMode(group);
+    const prefix = mode === 'host' ? `${ASSISTANT_NAME} [host]` : ASSISTANT_NAME;
+    await sendMessage(chatJid, `${prefix}: ${response.userMessage}`);
   }
 
   if (response.internalLog) {
@@ -318,7 +320,8 @@ async function runAgent(
       isMain,
     };
 
-    const output = config.executionMode === 'host'
+    const mode = resolveExecutionMode(group);
+    const output = mode === 'host'
       ? await runHostAgent(
           group,
           agentInput,
@@ -554,6 +557,7 @@ async function processTaskIpc(
     folder?: string;
     trigger?: string;
     containerConfig?: RegisteredGroup['containerConfig'];
+    executionMode?: 'container' | 'host';
   },
   sourceGroup: string, // Verified identity from IPC directory
   isMain: boolean, // Verified from directory path
@@ -745,6 +749,7 @@ async function processTaskIpc(
           trigger: data.trigger,
           added_at: new Date().toISOString(),
           containerConfig: data.containerConfig,
+          executionMode: data.executionMode,
         });
       } else {
         logger.warn(
@@ -1006,15 +1011,84 @@ function ensureContainerSystemRunning(): void {
 }
 
 async function main(): Promise<void> {
-  if (config.executionMode === 'container') {
-    ensureContainerSystemRunning();
-  } else {
-    logger.info({ executionMode: config.executionMode }, 'Skipping container system check (non-container mode)');
-  }
   initDatabase();
   logger.info('Database initialized');
   loadState();
-  logger.info({ executionMode: config.executionMode }, 'Execution mode');
+  logger.info({ executionMode: config.executionMode }, 'Execution mode (global default)');
+
+  // Determine which execution modes are needed across all groups
+  const allGroups = Object.values(registeredGroups);
+  const needsHost = allGroups.some(g => resolveExecutionMode(g) === 'host') || (allGroups.length === 0 && config.executionMode === 'host');
+  const needsContainer = allGroups.some(g => resolveExecutionMode(g) === 'container') || (allGroups.length === 0 && config.executionMode === 'container');
+
+  // Safety-first: block startup if any group needs host mode but hostSecurity is missing
+  if (needsHost && !config.hostSecurity) {
+    console.error('\n' + '='.repeat(66));
+    console.error('  FATAL: Host mode requires hostSecurity configuration');
+    console.error('='.repeat(66));
+    console.error('');
+    console.error('  Groups configured for host mode:');
+    const hostGroups = allGroups.filter(g => resolveExecutionMode(g) === 'host');
+    if (hostGroups.length > 0) {
+      for (const g of hostGroups) {
+        console.error(`    - ${g.name} (${g.folder})`);
+      }
+    } else {
+      console.error('    - (global default: host mode)');
+    }
+    console.error('');
+    console.error('  Add "hostSecurity" to nanoclaw.config.jsonc:');
+    console.error('    "hostSecurity": { "sandbox": true }');
+    console.error('');
+    console.error('='.repeat(66) + '\n');
+    process.exit(1);
+  }
+
+  // Startup banner: warn when any group will run with full macOS access
+  if (needsHost) {
+    const hostGroups = allGroups.filter(g => resolveExecutionMode(g) === 'host');
+    const sandboxEnabled = config.hostSecurity?.sandbox !== false;
+    const toolCount = config.hostSecurity?.tools?.length;
+
+    console.error('');
+    console.error('╔' + '═'.repeat(64) + '╗');
+    console.error('║  HOST MODE ACTIVE -- Agents have macOS access' + ' '.repeat(18) + '║');
+    console.error('╠' + '═'.repeat(64) + '╣');
+    console.error('║' + ' '.repeat(64) + '║');
+    if (hostGroups.length > 0 && hostGroups.length < allGroups.length) {
+      // Mixed mode: some groups in host, some in container
+      console.error(('║  Host groups: ' + hostGroups.map(g => g.name).join(', ')).padEnd(65) + '║');
+      const containerGroups = allGroups.filter(g => resolveExecutionMode(g) === 'container');
+      console.error(('║  Container groups: ' + containerGroups.map(g => g.name).join(', ')).padEnd(65) + '║');
+    } else if (allGroups.length > 0) {
+      console.error(('║  All ' + allGroups.length + ' group(s) running in host mode').padEnd(65) + '║');
+    } else {
+      console.error('║  Global default: host mode (no groups registered)'.padEnd(65) + '║');
+    }
+    console.error(('║  Sandbox: ' + (sandboxEnabled ? 'ON (non-main)' : 'OFF')).padEnd(65) + '║');
+    if (toolCount) {
+      console.error(('║  Tool restrictions: ' + toolCount + ' tools allowed (non-main)').padEnd(65) + '║');
+    }
+    console.error('║' + ' '.repeat(64) + '║');
+    console.error('╚' + '═'.repeat(64) + '╝');
+    console.error('');
+  }
+
+  // Conditional container system check (only when at least one group needs it)
+  if (needsContainer) {
+    try {
+      ensureContainerSystemRunning();
+    } catch (err) {
+      if (needsHost) {
+        // Mixed mode: container system down but host groups can still work
+        logger.warn({ err }, 'Container system unavailable -- container-mode groups will get errors, host-mode groups will work');
+      } else {
+        throw err; // All groups need containers, can't start
+      }
+    }
+  } else {
+    logger.info('Skipping container system check (no groups need container mode)');
+  }
 
   // Graceful shutdown handlers
   const shutdown = async (signal: string) => {

@@ -10,7 +10,7 @@ import {
   SCHEDULER_POLL_INTERVAL,
   TIMEZONE,
 } from './config.js';
-import { config } from './config-loader.js';
+import { config, resolveExecutionMode } from './config-loader.js';
 import { runContainerAgent, writeTasksSnapshot } from './container-runner.js';
 import { runHostAgent, HostRunnerSecurityContext } from './host-runner.js';
 import {
@@ -109,7 +109,8 @@ async function runTask(
       mainGroupFolder: MAIN_GROUP_FOLDER,
     };
 
-    const output = config.executionMode === 'host'
+    const mode = resolveExecutionMode(group);
+    const output = mode === 'host'
       ? await runHostAgent(
           group,
           agentInput,
@@ -126,7 +127,9 @@ async function runTask(
       error = output.error || 'Unknown error';
     } else if (output.result) {
       if (output.result.outputType === 'message' && output.result.userMessage) {
-        await deps.sendMessage(task.chat_jid, `${ASSISTANT_NAME}: ${output.result.userMessage}`);
+        const taskMode = resolveExecutionMode(group);
+        const prefix = taskMode === 'host' ? `${ASSISTANT_NAME} [host]` : ASSISTANT_NAME;
+        await deps.sendMessage(task.chat_jid, `${prefix}: ${output.result.userMessage}`);
       }
       result = output.result.userMessage || output.result.internalLog || null;
     }
