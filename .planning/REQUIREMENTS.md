@@ -18,7 +18,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Execution Mode
 
 - [x] **EXEC-01**: Config has an `executionMode` field accepting `"container"` or `"host"`, defaulting to `"container"`
-- [ ] **EXEC-02**: Startup prints a clear, unmistakable banner/warning when running in host mode, stating the agent has full macOS access
+- [x] **EXEC-02**: Startup prints a clear, unmistakable banner/warning when running in host mode, stating the agent has full macOS access
 - [x] **EXEC-03**: Host runner spawns `claude` (agent-runner) directly on macOS as a subprocess instead of inside a container
 - [x] **EXEC-04**: Host runner reuses the existing agent-runner code with path-configurable env vars (not a separate implementation)
 - [x] **EXEC-05**: Container runner continues working unchanged when `executionMode` is `"container"`
@@ -36,9 +36,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Per-Group Overrides
 
-- [ ] **GRP-01**: Individual groups in `registered_groups.json` can specify an `executionMode` field that overrides the global config
-- [ ] **GRP-02**: Groups without an `executionMode` field inherit the global setting
-- [ ] **GRP-03**: Per-group mode is resolved at message-processing time, not at startup
+- [x] **GRP-01**: Individual groups in `registered_groups.json` can specify an `executionMode` field that overrides the global config
+- [x] **GRP-02**: Groups without an `executionMode` field inherit the global setting
+- [x] **GRP-03**: Per-group mode is resolved at message-processing time, not at startup
 
 ### Host Mode Security
 
@@ -80,7 +80,7 @@ Deferred to future release. Tracked but not in current roadmap.
 | CFG-04 | Phase 2 | Complete |
 | CFG-05 | Phase 2 | Complete |
 | EXEC-01 | Phase 1 | Complete |
-| EXEC-02 | Phase 8 | Pending |
+| EXEC-02 | Phase 8 | Complete |
 | EXEC-03 | Phase 4 | Complete |
 | EXEC-04 | Phase 3 | Complete |
 | EXEC-05 | Phase 3 | Complete |
@@ -92,9 +92,9 @@ Deferred to future release. Tracked but not in current roadmap.
 | MCP-04 | Phase 7 | Complete |
 | MCP-05 | Phase 6 | Complete |
 | MCP-06 | Phase 7 | Complete |
-| GRP-01 | Phase 8 | Pending |
-| GRP-02 | Phase 8 | Pending |
-| GRP-03 | Phase 8 | Pending |
+| GRP-01 | Phase 8 | Complete |
+| GRP-02 | Phase 8 | Complete |
+| GRP-03 | Phase 8 | Complete |
 | SEC-01 | Phase 5 | Complete |
 | SEC-02 | Phase 5 | Complete |
 | SEC-03 | Phase 5 | Complete |
@@ -106,4 +106,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-11 after Phase 7 completion*
+*Last updated: 2026-02-12 after Phase 8 completion*
