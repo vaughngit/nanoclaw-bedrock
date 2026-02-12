@@ -3,6 +3,8 @@ import path from 'node:path';
 import stripJsonComments from 'strip-json-comments';
 import { z } from 'zod';
 
+import type { RegisteredGroup } from './types.js';
+
 // NOTE: We intentionally do NOT use the pino logger here. This module runs
 // during ES module evaluation (top-level singleton), before pino's async
 // worker thread (pino-pretty transport) is ready to receive messages. Any
@@ -274,3 +276,14 @@ function loadAndValidateConfig(): NanoClawConfig {
 }
 
 export const config: NanoClawConfig = loadAndValidateConfig();
+
+export type ExecutionMode = 'container' | 'host';
+
+/**
+ * Resolve the execution mode for a specific group.
+ * Per-group override takes precedence, otherwise falls back to global config.
+ * Called at message-processing time (not cached) to support config reloading.
+ */
+export function resolveExecutionMode(group: RegisteredGroup): ExecutionMode {
+  return group.executionMode ?? config.executionMode;
+}

@@ -96,6 +96,15 @@ export function initDatabase(): void {
     /* column already exists */
   }
 
+  // Add execution_mode column if it doesn't exist (migration for per-group mode overrides)
+  try {
+    db.exec(
+      `ALTER TABLE registered_groups ADD COLUMN execution_mode TEXT DEFAULT NULL`,
+    );
+  } catch {
+    /* column already exists */
+  }
+
   // State tables (replacing JSON files)
   db.exec(`
     CREATE TABLE IF NOT EXISTS router_state (
@@ -489,6 +498,7 @@ export function getRegisteredGroup(
         container_config: string | null;
         requires_trigger: number | null;
         channel_type: string | null;
+        execution_mode: string | null;
       }
     | undefined;
   if (!row) return undefined;
@@ -503,6 +513,7 @@ export function getRegisteredGroup(
       : undefined,
     requiresTrigger: row.requires_trigger === null ? undefined : row.requires_trigger === 1,
     channelType: (row.channel_type as 'whatsapp' | 'slack') || 'whatsapp',
+    executionMode: (row.execution_mode as 'container' | 'host') || undefined,
   };
 }
 
@@ -511,8 +522,8 @@ export function setRegisteredGroup(
   group: RegisteredGroup,
 ): void {
   db.prepare(
-    `INSERT OR REPLACE INTO registered_groups (jid, name, folder, trigger_pattern, added_at, container_config, requires_trigger, channel_type)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT OR REPLACE INTO registered_groups (jid, name, folder, trigger_pattern, added_at, container_config, requires_trigger, channel_type, execution_mode)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     jid,
     group.name,
@@ -522,6 +533,7 @@ export function setRegisteredGroup(
     group.containerConfig ? JSON.stringify(group.containerConfig) : null,
     group.requiresTrigger === undefined ? 1 : group.requiresTrigger ? 1 : 0,
     group.channelType || 'whatsapp',
+    group.executionMode || null,
   );
 }
 
@@ -537,6 +549,7 @@ export function getAllRegisteredGroups(): Record<string, RegisteredGroup> {
     container_config: string | null;
     requires_trigger: number | null;
     channel_type: string | null;
+    execution_mode: string | null;
   }>;
   const result: Record<string, RegisteredGroup> = {};
   for (const row of rows) {
@@ -550,6 +563,7 @@ export function getAllRegisteredGroups(): Record<string, RegisteredGroup> {
         : undefined,
       requiresTrigger: row.requires_trigger === null ? undefined : row.requires_trigger === 1,
       channelType: (row.channel_type as 'whatsapp' | 'slack') || 'whatsapp',
+      executionMode: (row.execution_mode as 'container' | 'host') || undefined,
     };
   }
   return result;

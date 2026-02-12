@@ -40,6 +40,7 @@ export interface RegisteredGroup {
   containerConfig?: ContainerConfig;
   requiresTrigger?: boolean; // Default: true for groups, false for solo chats
   channelType?: 'whatsapp' | 'slack'; // Default: 'whatsapp'
+  executionMode?: 'container' | 'host'; // Per-group override; undefined = inherit global
 }
 
 export interface NewMessage {
