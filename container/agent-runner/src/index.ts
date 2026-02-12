@@ -7,7 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import { query, HookCallback, PreCompactHookInput } from '@anthropic-ai/claude-agent-sdk';
 import { createIpcMcp } from './ipc-mcp.js';
-import { filterMcpServersByMode, NanoClawMcpServer } from './mcp-filter.js';
+import { filterMcpServersByMode, readGlobalMcpServerNames, logMcpServerSources, NanoClawMcpServer } from './mcp-filter.js';
 
 function log(message: string): void {
   console.error(`[agent-runner] ${message}`);
@@ -323,19 +323,22 @@ async function main(): Promise<void> {
     const { active, filtered } = filterMcpServersByMode(input.mcpServers, NANOCLAW_MODE);
     configMcpServers = active;
 
-    // Startup logging: show what's active and what's filtered
-    const activeNames = Object.keys(active);
-    if (activeNames.length > 0) {
-      log(`MCP servers active (${NANOCLAW_MODE} mode): ${activeNames.join(', ')}`);
-    }
+    // Log mode-filtered servers (detail on why each was excluded)
     if (filtered.length > 0) {
       for (const f of filtered) {
         log(`MCP server filtered out: "${f.name}" (modes: [${f.modes.join(', ')}], current: ${NANOCLAW_MODE})`);
       }
     }
-  } else {
-    log('No additional MCP servers configured');
   }
+
+  // Read global MCP server names for logging (main group in host mode only)
+  // The SDK loads global servers via settingSources: ['user'] -- we read separately for visibility
+  const globalServerNames = (isMain && NANOCLAW_MODE === 'host')
+    ? readGlobalMcpServerNames()
+    : [];
+
+  // Log server sources: config vs global, with override detection
+  logMcpServerSources(Object.keys(configMcpServers), globalServerNames, NANOCLAW_MODE);
 
   // Setting sources: non-main groups use 'project' only to prevent shared ~/.claude permission leaks
   // (settings written by one group's session would leak to others via shared user config)
@@ -405,6 +408,8 @@ async function main(): Promise<void> {
     log('Starting agent...');
     if (sessionId) log(`Resuming session: ${sessionId}`);
 
+    const queryStartMs = Date.now();
+
     for await (const message of query({
       prompt,
       options: { ...queryOptions, resume: sessionId }
@@ -412,6 +417,25 @@ async function main(): Promise<void> {
       if (message.type === 'system' && message.subtype === 'init') {
         newSessionId = message.session_id;
         log(`Session initialized: ${newSessionId}`);
+
+        // Log MCP server health status from SDK initialization
+        const initMs = Date.now() - queryStartMs;
+        const mcpServers = (message as { mcp_servers?: { name: string; status: string }[] }).mcp_servers;
+        if (mcpServers && mcpServers.length > 0) {
+          log(`--- MCP Server Health (${initMs}ms) ---`);
+          for (const server of mcpServers) {
+            const statusLabel = server.status === 'connected' ? 'OK' : server.status.toUpperCase();
+            const detail = server.status === 'connected' ? '' : `: ${server.status}`;
+            log(`  [${statusLabel}] ${server.name}${detail}`);
+          }
+          const connected = mcpServers.filter(s => s.status === 'connected').length;
+          const total = mcpServers.length;
+          if (connected === total) {
+            log(`  All ${total} servers connected`);
+          } else {
+            log(`  Warning: ${total - connected}/${total} MCP servers not connected`);
+          }
+        }
       }
 
       if (message.type === 'result') {
