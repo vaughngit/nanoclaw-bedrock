@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 7 complete. Ready for Phase 8 (Per-Group Overrides).
+**Current focus:** Phase 8 plan 1 complete. Ready for Phase 8 Plan 2 (Integration and IPC tooling).
 
 ## Current Position
 
-Phase: 7 of 8 (MCP Inheritance and Health Checks)
-Plan: 1 of 1 in phase
-Status: Phase complete
-Last activity: 2026-02-12 -- Completed 07-01-PLAN.md
+Phase: 8 of 8 (Per-Group Overrides and Integration)
+Plan: 1 of 2 in phase
+Status: In progress
+Last activity: 2026-02-12 -- Completed 08-01-PLAN.md
 
-Progress: [██████████████░░] ~87%
+Progress: [███████████████░] ~93%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: 7.3 min
-- Total execution time: 87 min
+- Total plans completed: 13
+- Average duration: 6.9 min
+- Total execution time: 90 min
 
 **By Phase:**
 
@@ -34,9 +34,10 @@ Progress: [██████████████░░] ~87%
 | 05-host-mode-security | 3/3 | 10 min | 3.3 min |
 | 06-mcp-server-configuration-and-filtering | 2/2 | 6 min | 3 min |
 | 07-mcp-inheritance-and-health-checks | 1/1 | 2 min | 2 min |
+| 08-per-group-overrides-and-integration | 1/2 | 3 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-03 (3 min), 06-01 (4 min), 06-02 (2 min), 07-01 (2 min)
+- Last 5 plans: 06-01 (4 min), 06-02 (2 min), 07-01 (2 min), 08-01 (3 min)
 - Consistent ~2-4 min for focused pipeline/wiring plans
 
 *Updated after each plan completion*
@@ -94,6 +95,10 @@ Recent decisions affecting current work:
 - [07-01]: settingSources unchanged: main keeps ['project','user'], non-main keeps ['project']
 - [07-01]: Health status from SDK init message, not custom probes (avoids double server spawning)
 - [07-01]: Global inheritance restricted to isMain && host mode only (preserves Phase 5 security boundary)
+- [08-01]: resolveExecutionMode() called at message-processing time, not cached at startup -- supports dynamic group registration
+- [08-01]: Startup reordered: initDatabase/loadState before container check -- need registered groups to determine which modes are needed
+- [08-01]: Mixed-mode: container system failure logged as warning, not fatal -- host-mode groups can still operate
+- [08-01]: Host-mode responses tagged with [host] prefix for visibility in chat
 
 ### Pending Todos
 
@@ -106,6 +111,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-12T04:02:38Z
-Stopped at: Completed 07-01-PLAN.md. Phase 7 complete. Next: Phase 8 (Per-Group Overrides).
+Last session: 2026-02-12T04:54:47Z
+Stopped at: Completed 08-01-PLAN.md. Phase 8 plan 1 complete. Next: 08-02-PLAN.md (integration and IPC tooling).
 Resume file: None
