@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 6 complete. Ready for Phase 7 (MCP Health Checks).
+**Current focus:** Phase 7 complete. Ready for Phase 8 (Per-Group Overrides).
 
 ## Current Position
 
-Phase: 6 of 8 (MCP Server Configuration and Filtering)
-Plan: 2 of 2 in phase
+Phase: 7 of 8 (MCP Inheritance and Health Checks)
+Plan: 1 of 1 in phase
 Status: Phase complete
-Last activity: 2026-02-11 -- Completed 06-02-PLAN.md
+Last activity: 2026-02-12 -- Completed 07-01-PLAN.md
 
-Progress: [████████████░░░░] ~80%
+Progress: [██████████████░░] ~87%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 7.7 min
-- Total execution time: 85 min
+- Total plans completed: 12
+- Average duration: 7.3 min
+- Total execution time: 87 min
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: [████████████░░░░] ~80%
 | 04-runner-abstraction-and-host-runner | 2/2 | 48 min | 24 min |
 | 05-host-mode-security | 3/3 | 10 min | 3.3 min |
 | 06-mcp-server-configuration-and-filtering | 2/2 | 6 min | 3 min |
+| 07-mcp-inheritance-and-health-checks | 1/1 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-02 (4 min), 05-03 (3 min), 06-01 (4 min), 06-02 (2 min)
+- Last 5 plans: 05-03 (3 min), 06-01 (4 min), 06-02 (2 min), 07-01 (2 min)
 - Consistent ~2-4 min for focused pipeline/wiring plans
 
 *Updated after each plan completion*
@@ -89,6 +90,10 @@ Recent decisions affecting current work:
 - [06-02]: Filter in agent-runner not host-runner: single filter point, no cross-build-target imports
 - [06-02]: IPC MCP listed first in spread operator: defense-in-depth against config override of "nanoclaw"
 - [06-02]: No tools allowlist changes: non-main MCP access controlled by admin hostSecurity.tools config
+- [07-01]: Read ~/.claude/settings.json for logging only; SDK settingSources handles actual loading
+- [07-01]: settingSources unchanged: main keeps ['project','user'], non-main keeps ['project']
+- [07-01]: Health status from SDK init message, not custom probes (avoids double server spawning)
+- [07-01]: Global inheritance restricted to isMain && host mode only (preserves Phase 5 security boundary)
 
 ### Pending Todos
 
@@ -96,12 +101,11 @@ None.
 
 ### Blockers/Concerns
 
-- Phase 7 (MCP Health Checks): Agent SDK mcpServerStatus() API existence unverified -- may need alternative approach
 - ESM pattern note: Any future module-level singletons that log at import time must use process.stderr.write, not pino logger (async transport timing issue)
 - Cross-mode sessions: Container-mode session IDs don't have transcript files on host filesystem. Agent-runner now retries without session, but database still stores stale session IDs until overwritten by new sessions.
 
 ## Session Continuity
 
-Last session: 2026-02-11T04:55:06Z
-Stopped at: Completed 06-02-PLAN.md. Phase 6 complete. Next: Phase 7 (MCP Health Checks).
+Last session: 2026-02-12T04:02:38Z
+Stopped at: Completed 07-01-PLAN.md. Phase 7 complete. Next: Phase 8 (Per-Group Overrides).
 Resume file: None
