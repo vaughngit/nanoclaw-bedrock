@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Runner Abstraction and Host Runner** - Spawn agents directly on macOS as subprocesses using shared runner interface
 - [x] **Phase 5: Host Mode Security** - Enforce macOS Seatbelt sandbox, IPC authorization, and permission boundaries in host mode
 - [x] **Phase 6: MCP Server Configuration and Filtering** - Mode-tagged MCP servers with intelligent filtering at agent startup
-- [ ] **Phase 7: MCP Inheritance and Health Checks** - Host mode inherits global MCP servers, startup health reporting for all servers
+- [x] **Phase 7: MCP Inheritance and Health Checks** - Host mode inherits global MCP servers, startup health reporting for all servers
 - [ ] **Phase 8: Per-Group Overrides and Integration** - Per-group execution mode, startup banners, end-to-end verification
 
 ## Phase Details
@@ -124,7 +124,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md -- Global MCP reading for source logging, health status capture from SDK init message, separate config vs global server logging
+- [x] 07-01-PLAN.md -- Global MCP reading for source logging, health status capture from SDK init message, separate config vs global server logging
 
 ### Phase 8: Per-Group Overrides and Integration
 **Goal**: Individual groups can override the global execution mode, and the full system works end-to-end with clear startup communication about the running configuration
@@ -155,5 +155,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Runner Abstraction and Host Runner | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. Host Mode Security | 3/3 | ✓ Complete | 2026-02-08 |
 | 6. MCP Server Configuration and Filtering | 2/2 | ✓ Complete | 2026-02-10 |
-| 7. MCP Inheritance and Health Checks | 0/1 | Not started | - |
+| 7. MCP Inheritance and Health Checks | 1/1 | ✓ Complete | 2026-02-11 |
 | 8. Per-Group Overrides and Integration | 0/2 | Not started | - |

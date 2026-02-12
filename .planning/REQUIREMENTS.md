@@ -27,12 +27,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### MCP Servers
 
-- [ ] **MCP-01**: MCP servers configured in `nanoclaw.config.jsonc` with a `modes` array per server (`["host"]`, `["container"]`, or `["host", "container"]`)
-- [ ] **MCP-02**: Servers without a `modes` field default to `["host", "container"]` (available in both modes)
-- [ ] **MCP-03**: Runner filters MCP servers at agent startup, only loading servers whose `modes` include the current execution mode
-- [ ] **MCP-04**: Host mode uses `settingSources: ['user', 'project']` to inherit global MCP servers from `~/.claude/settings.json`
-- [ ] **MCP-05**: Startup logs which MCP servers are active and which were filtered out due to mode incompatibility
-- [ ] **MCP-06**: On startup, attempt to connect to each configured MCP server and report status (connected/failed/timeout) without blocking startup
+- [x] **MCP-01**: MCP servers configured in `nanoclaw.config.jsonc` with a `modes` array per server (`["host"]`, `["container"]`, or `["host", "container"]`)
+- [x] **MCP-02**: Servers without a `modes` field default to `["host", "container"]` (available in both modes)
+- [x] **MCP-03**: Runner filters MCP servers at agent startup, only loading servers whose `modes` include the current execution mode
+- [x] **MCP-04**: Host mode uses `settingSources: ['user', 'project']` to inherit global MCP servers from `~/.claude/settings.json`
+- [x] **MCP-05**: Startup logs which MCP servers are active and which were filtered out due to mode incompatibility
+- [x] **MCP-06**: On startup, attempt to connect to each configured MCP server and report status (connected/failed/timeout) without blocking startup
 
 ### Per-Group Overrides
 
@@ -86,12 +86,12 @@ Deferred to future release. Tracked but not in current roadmap.
 | EXEC-05 | Phase 3 | Complete |
 | EXEC-06 | Phase 5 | Complete |
 | EXEC-07 | Phase 5 | Complete |
-| MCP-01 | Phase 6 | Pending |
-| MCP-02 | Phase 6 | Pending |
-| MCP-03 | Phase 6 | Pending |
-| MCP-04 | Phase 7 | Pending |
-| MCP-05 | Phase 6 | Pending |
-| MCP-06 | Phase 7 | Pending |
+| MCP-01 | Phase 6 | Complete |
+| MCP-02 | Phase 6 | Complete |
+| MCP-03 | Phase 6 | Complete |
+| MCP-04 | Phase 7 | Complete |
+| MCP-05 | Phase 6 | Complete |
+| MCP-06 | Phase 7 | Complete |
 | GRP-01 | Phase 8 | Pending |
 | GRP-02 | Phase 8 | Pending |
 | GRP-03 | Phase 8 | Pending |
@@ -106,4 +106,4 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-08 after Phase 5 completion*
+*Last updated: 2026-02-11 after Phase 7 completion*
