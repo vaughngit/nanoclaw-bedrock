@@ -4,8 +4,13 @@
  * Filters NanoClaw MCP server configs by execution mode and translates
  * to Claude Agent SDK format. The "nanoclaw" server name is reserved
  * for IPC and is rejected if found in user config.
+ *
+ * Also provides global MCP server name reading (for logging visibility)
+ * and source logging (config vs global server breakdown).
  */
 
+import fs from 'fs';
+import path from 'path';
 import type {
   McpStdioServerConfig,
   McpSSEServerConfig,
@@ -89,4 +94,75 @@ export function filterMcpServersByMode(
   }
 
   return { active, filtered };
+}
+
+/**
+ * Read global MCP server names from ~/.claude/settings.json.
+ *
+ * This is for LOGGING ONLY -- the SDK's settingSources: ['user'] handles
+ * actual server loading. We read the file separately to log which servers
+ * come from the user's global settings vs the nanoclaw config.
+ *
+ * Uses CLAUDE_CONFIG_DIR env var (set by host-runner), falling back to ~/.claude.
+ * Returns empty array on any error (file not found, parse error, no mcpServers).
+ */
+export function readGlobalMcpServerNames(): string[] {
+  const configDir = process.env.CLAUDE_CONFIG_DIR
+    || path.join(process.env.HOME || '', '.claude');
+  const settingsPath = path.join(configDir, 'settings.json');
+
+  try {
+    if (!fs.existsSync(settingsPath)) return [];
+    const raw = fs.readFileSync(settingsPath, 'utf-8');
+    const settings = JSON.parse(raw);
+    return settings.mcpServers ? Object.keys(settings.mcpServers) : [];
+  } catch (err) {
+    log(`Warning: Failed to parse global settings: ${err instanceof Error ? err.message : String(err)}`);
+    return [];
+  }
+}
+
+/**
+ * Log MCP server sources in separate sections for startup visibility.
+ *
+ * Shows config servers (from nanoclaw.config.jsonc), global servers
+ * (from ~/.claude/settings.json), and any config servers that override
+ * same-named global servers.
+ *
+ * @param configNames - Server names from nanoclaw.config.jsonc (already filtered by mode)
+ * @param globalNames - Server names from ~/.claude/settings.json
+ * @param currentMode - Current execution mode (for log context)
+ */
+export function logMcpServerSources(
+  configNames: string[],
+  globalNames: string[],
+  currentMode: string,
+): void {
+  // Filter out reserved "nanoclaw" name from global list
+  const cleanGlobalNames = globalNames.filter(n => n !== 'nanoclaw');
+
+  // Compute overridden names: global servers shadowed by config servers
+  const overriddenNames = cleanGlobalNames.filter(n => configNames.includes(n));
+
+  // Active global names: not overridden by config
+  const activeGlobalNames = cleanGlobalNames.filter(n => !configNames.includes(n));
+
+  if (configNames.length === 0 && activeGlobalNames.length === 0 && overriddenNames.length === 0) {
+    log('No additional MCP servers configured');
+    return;
+  }
+
+  log('--- MCP Server Sources ---');
+
+  if (configNames.length > 0) {
+    log(`  Config (nanoclaw.config.jsonc): ${configNames.join(', ')}`);
+  }
+
+  if (activeGlobalNames.length > 0) {
+    log(`  Global (~/.claude/settings.json): ${activeGlobalNames.join(', ')}`);
+  }
+
+  if (overriddenNames.length > 0) {
+    log(`  Overridden by config: ${overriddenNames.join(', ')}`);
+  }
 }
