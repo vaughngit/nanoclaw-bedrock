@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Users can toggle between container isolation and host-native execution via a single config file
-**Current focus:** Phase 8 plan 1 complete. Ready for Phase 8 Plan 2 (Integration and IPC tooling).
+**Current focus:** All 8 phases complete. Full roadmap delivered.
 
 ## Current Position
 
 Phase: 8 of 8 (Per-Group Overrides and Integration)
-Plan: 1 of 2 in phase
-Status: In progress
-Last activity: 2026-02-12 -- Completed 08-01-PLAN.md
+Plan: 2 of 2 in phase
+Status: Complete
+Last activity: 2026-02-12 -- Completed 08-02-PLAN.md
 
-Progress: [███████████████░] ~93%
+Progress: [████████████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 6.9 min
-- Total execution time: 90 min
+- Total plans completed: 14
+- Average duration: 6.6 min
+- Total execution time: 92 min
 
 **By Phase:**
 
@@ -34,11 +34,11 @@ Progress: [███████████████░] ~93%
 | 05-host-mode-security | 3/3 | 10 min | 3.3 min |
 | 06-mcp-server-configuration-and-filtering | 2/2 | 6 min | 3 min |
 | 07-mcp-inheritance-and-health-checks | 1/1 | 2 min | 2 min |
-| 08-per-group-overrides-and-integration | 1/2 | 3 min | 3 min |
+| 08-per-group-overrides-and-integration | 2/2 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 06-01 (4 min), 06-02 (2 min), 07-01 (2 min), 08-01 (3 min)
-- Consistent ~2-4 min for focused pipeline/wiring plans
+- Last 5 plans: 06-02 (2 min), 07-01 (2 min), 08-01 (3 min), 08-02 (2 min)
+- Consistent ~2-3 min for focused pipeline/wiring plans
 
 *Updated after each plan completion*
 
@@ -99,6 +99,9 @@ Recent decisions affecting current work:
 - [08-01]: Startup reordered: initDatabase/loadState before container check -- need registered groups to determine which modes are needed
 - [08-01]: Mixed-mode: container system failure logged as warning, not fatal -- host-mode groups can still operate
 - [08-01]: Host-mode responses tagged with [host] prefix for visibility in chat
+- [08-02]: system_health snapshot written to per-group IPC dir -- maintains namespace isolation
+- [08-02]: 2-second wait in agent-runner before reading snapshot -- accommodates IPC poll interval
+- [08-02]: Sandbox/tools remain global, not per-group configurable -- simplifies security model
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-12T04:54:47Z
-Stopped at: Completed 08-01-PLAN.md. Phase 8 plan 1 complete. Next: 08-02-PLAN.md (integration and IPC tooling).
+Last session: 2026-02-12T04:59:30Z
+Stopped at: Completed 08-02-PLAN.md. Phase 8 complete. All 8 phases delivered. Roadmap 100% complete.
 Resume file: None
