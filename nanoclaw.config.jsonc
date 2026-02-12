@@ -106,8 +106,8 @@
     // are controlled by the SDK's permission mode (non-main groups use
     // 'default' mode, which prompts before destructive operations).
     //
-    // To disable sandbox for a specific group, use per-group overrides
-    // in registered_groups.json (Phase 8).
+    // Per-group overrides can set executionMode but sandbox/tools are global.
+    // All non-main host-mode groups share the same security settings.
     //
     "sandbox": true
 
@@ -143,14 +143,31 @@
 
   },
 
-  // ─── Per-Group Overrides ──────────────────────────────────────────
+  // --- Per-Group Overrides ──────────────────────────────────────────
   //
-  // Individual groups can override the global executionMode.
-  // Configured in the database (registered_groups), not here.
-  // Groups without an override inherit the global setting above.
+  // Individual groups can override the global executionMode above.
+  // Overrides are stored in the database (registered_groups), not here.
   //
-  // See Phase 8 for details. No config fields needed here --
-  // per-group overrides use the existing group registration system.
+  // HOW IT WORKS:
+  //   1. Register a group with an executionMode override:
+  //      Use the register_group IPC tool with executionMode: "host" or "container"
+  //   2. Groups WITHOUT an executionMode inherit the global setting above
+  //   3. Mode is resolved at message time (no restart needed after changes)
+  //
+  // EXAMPLES:
+  //   Global: "container" + group override: "host"
+  //     -> That group runs on macOS, all others in containers
+  //
+  //   Global: "host" + group override: "container"
+  //     -> That group runs in a container, all others on macOS
+  //
+  // SAFETY:
+  //   If ANY group uses host mode, "hostSecurity" above MUST be configured.
+  //   Startup will block with a clear error if hostSecurity is missing.
+  //
+  // STARTUP BANNER:
+  //   When host mode is active, startup prints a prominent banner
+  //   showing which groups have macOS access and security settings.
 
   // ─── Path Environment Variables (Host Mode) ────────────────────
   //
