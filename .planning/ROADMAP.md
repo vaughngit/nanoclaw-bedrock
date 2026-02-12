@@ -136,11 +136,11 @@ Plans:
   3. Per-group mode is resolved at message-processing time, not cached at startup
   4. Startup prints a clear, unmistakable banner when any group will run in host mode, stating the agent has full macOS access
   5. A message to a container-mode group and a host-mode group in the same session both produce correct responses using their respective runners
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
+- [ ] 08-01-PLAN.md -- Per-group override data layer (type, DB, resolution function), startup validation/banner, conditional container check, per-group routing in runAgent/runTask, mode hint in responses
+- [ ] 08-02-PLAN.md -- system_health IPC tool (main-only), register_group executionMode param, config template documentation
 
 ## Progress
 
