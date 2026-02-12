@@ -121,11 +121,10 @@ Plans:
   1. Host mode agents use `settingSources: ['project', 'user']` and successfully load MCP servers from `~/.claude/settings.json`
   2. Startup attempts to connect to each configured MCP server and reports status (connected, failed, timeout) in logs
   3. MCP health checks do not block startup -- the app continues even if some servers are unreachable
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md -- Global MCP reading for source logging, health status capture from SDK init message, separate config vs global server logging
 
 ### Phase 8: Per-Group Overrides and Integration
 **Goal**: Individual groups can override the global execution mode, and the full system works end-to-end with clear startup communication about the running configuration
@@ -156,5 +155,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Runner Abstraction and Host Runner | 2/2 | ✓ Complete | 2026-02-09 |
 | 5. Host Mode Security | 3/3 | ✓ Complete | 2026-02-08 |
 | 6. MCP Server Configuration and Filtering | 2/2 | ✓ Complete | 2026-02-10 |
-| 7. MCP Inheritance and Health Checks | 0/2 | Not started | - |
+| 7. MCP Inheritance and Health Checks | 0/1 | Not started | - |
 | 8. Per-Group Overrides and Integration | 0/2 | Not started | - |
