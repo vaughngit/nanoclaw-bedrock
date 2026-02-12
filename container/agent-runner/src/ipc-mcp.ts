@@ -321,7 +321,10 @@ Use available_groups.json to find the JID for a group. The folder name should be
           jid: z.string().describe('The WhatsApp JID (e.g., "120363336345536173@g.us")'),
           name: z.string().describe('Display name for the group'),
           folder: z.string().describe('Folder name for group files (lowercase, hyphens, e.g., "family-chat")'),
-          trigger: z.string().describe('Trigger word (e.g., "@Andy")')
+          trigger: z.string().describe('Trigger word (e.g., "@Andy")'),
+          executionMode: z.enum(['container', 'host']).optional().describe(
+            'Execution mode override for this group. Omit to inherit the global setting.'
+          ),
         },
         async (args) => {
           if (!isMain) {
@@ -337,6 +340,7 @@ Use available_groups.json to find the JID for a group. The folder name should be
             name: args.name,
             folder: args.folder,
             trigger: args.trigger,
+            executionMode: args.executionMode,
             timestamp: new Date().toISOString()
           };
 
@@ -348,6 +352,60 @@ Use available_groups.json to find the JID for a group. The folder name should be
               text: `Group "${args.name}" registered. It will start receiving messages immediately.`
             }]
           };
+        }
+      ),
+
+      tool(
+        'system_health',
+        'Get system health information including execution mode, active MCP servers, and security config for all groups. Main group only.',
+        {},
+        async () => {
+          if (!isMain) {
+            return {
+              content: [{ type: 'text', text: 'System health is only available to the main group.' }],
+              isError: true
+            };
+          }
+
+          // Write health check request to tasks IPC
+          const data = {
+            type: 'system_health',
+            groupFolder,
+            timestamp: new Date().toISOString()
+          };
+
+          writeIpcFile(TASKS_DIR, ipcDir, data);
+
+          // Read the health snapshot that the host process maintains
+          const healthFile = path.join(ipcDir, 'system_health.json');
+
+          // Wait briefly for host to process (it runs on IPC_POLL_INTERVAL)
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
+          try {
+            if (fs.existsSync(healthFile)) {
+              const health = JSON.parse(fs.readFileSync(healthFile, 'utf-8'));
+              return {
+                content: [{
+                  type: 'text',
+                  text: JSON.stringify(health, null, 2)
+                }]
+              };
+            }
+            return {
+              content: [{
+                type: 'text',
+                text: 'Health snapshot not yet available. The host process writes it on the next IPC poll cycle. Try again in a few seconds.'
+              }]
+            };
+          } catch (err) {
+            return {
+              content: [{
+                type: 'text',
+                text: `Error reading health snapshot: ${err instanceof Error ? err.message : String(err)}`
+              }]
+            };
+          }
         }
       )
     ]

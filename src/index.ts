@@ -759,6 +759,43 @@ async function processTaskIpc(
       }
       break;
 
+    case 'system_health':
+      if (!isMain) {
+        logger.warn({ sourceGroup }, 'Unauthorized system_health attempt blocked');
+        break;
+      }
+
+      try {
+        const groups = Object.entries(registeredGroups);
+        const healthData = {
+          timestamp: new Date().toISOString(),
+          globalExecutionMode: config.executionMode,
+          hostSecurity: config.hostSecurity ? {
+            sandbox: config.hostSecurity.sandbox,
+            tools: config.hostSecurity.tools ?? 'all (unrestricted)',
+          } : null,
+          mcpServers: Object.keys(config.mcpServers).length,
+          groups: groups.map(([jid, g]) => ({
+            name: g.name,
+            folder: g.folder,
+            jid,
+            executionMode: resolveExecutionMode(g),
+            override: g.executionMode ?? null,
+          })),
+        };
+
+        const healthFile = path.join(DATA_DIR, 'ipc', sourceGroup, 'system_health.json');
+        // Atomic write
+        const tempPath = `${healthFile}.tmp`;
+        fs.writeFileSync(tempPath, JSON.stringify(healthData, null, 2));
+        fs.renameSync(tempPath, healthFile);
+
+        logger.info({ sourceGroup }, 'System health snapshot written');
+      } catch (err) {
+        logger.error({ err, sourceGroup }, 'Failed to write system health snapshot');
+      }
+      break;
+
     default:
       logger.warn({ type: data.type }, 'Unknown IPC task type');
   }
